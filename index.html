@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OARS – Case Notes & Email Templates</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #f4f1ec;
+    --panel: #ffffff;
+    --accent: #1b3a5c;
+    --accent2: #c1440e;
+    --soft: #e8e3da;
+    --muted: #8a8278;
+    --text: #1e1a16;
+    --border: #d4cfc6;
+    --tag-bg: #e4eefc;
+    --tag-col: #1b3a5c;
+    --highlight: #fff3cd;
+    --green: #1a5c3a;
+    --green-bg: #e6f4ec;
+    --shadow: 0 2px 12px rgba(27,58,92,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  header {
+    background: var(--accent);
+    color: white;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 3px solid var(--accent2);
+    position: sticky; top: 0; z-index: 100;
+  }
+  header .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+  header .logo span { color: #f9a55a; }
+  header .subtitle {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 2px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  header .search-wrap {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #globalSearch {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+    padding: 7px 14px 7px 34px;
+    border-radius: 20px;
+    font-size: 13px;
+    width: 260px;
+    font-family: inherit;
+    outline: none;
+    transition: background 0.2s;
+  }
+  #globalSearch::placeholder { color: rgba(255,255,255,0.5); }
+  #globalSearch:focus { background: rgba(255,255,255,0.2); }
+  .search-icon {
+    position: absolute;
+    right: calc(100% - 306px);
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.6;
+    pointer-events: none;
+    font-size: 14px;
+  }
+  .search-rel { position: relative; }
+
+  .app {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    height: calc(100vh - 61px);
+  }
+
+  nav {
+    background: var(--accent);
+    color: white;
+    padding: 16px 0;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+  nav .nav-section {
+    padding: 8px 16px 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.5;
+    font-weight: 600;
+  }
+  nav button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px 8px 20px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.8);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    border-left: 3px solid transparent;
+  }
+  nav button:hover { background: rgba(255,255,255,0.08); color: white; }
+  nav button.active {
+    background: rgba(255,255,255,0.12);
+    color: white;
+    border-left-color: #f9a55a;
+    font-weight: 500;
+  }
+
+  main {
+    overflow-y: auto;
+    padding: 24px 28px;
+  }
+
+  .search-results-bar {
+    background: var(--highlight);
+    border: 1px solid #f0d060;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+  .search-results-bar.visible { display: flex; }
+  .search-results-bar button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .page-desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 22px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--panel);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(27,58,92,0.12);
+  }
+  .card-header {
+    padding: 14px 16px 10px;
+    background: linear-gradient(135deg, #f8f6f3 0%, #fff 100%);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--tag-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .card-title {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--accent);
+    line-height: 1.3;
+  }
+  .card-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: var(--tag-bg);
+    color: var(--tag-col);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .card-tag.green { background: var(--green-bg); color: var(--green); }
+  .card-tag.orange { background: #fef3e6; color: #a04000; }
+  .card-body {
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .card-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--soft);
+    display: flex;
+    gap: 8px;
+  }
+  .btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-primary:hover { background: #254d7a; }
+  .btn-secondary {
+    background: var(--soft);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger {
+    background: #fdecea;
+    color: #b91c1c;
+    border: 1px solid #f5c6c6;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--panel);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 760px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal-header {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky; top: 0;
+    background: white;
+    border-radius: 14px 14px 0 0;
+    z-index: 10;
+  }
+  .modal-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--accent);
+    flex: 1;
+  }
+  .modal-close {
+    background: var(--soft);
+    border: none;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+  }
+  .modal-close:hover { background: var(--border); }
+  .modal-body { padding: 20px 22px; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--accent);
+    background: white;
+  }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+
+  .output-box {
+    background: #f0f4f8;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin-top: 16px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    min-height: 120px;
+    position: relative;
+  }
+  .output-box .output-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+  }
+  .copy-btn:hover { background: #254d7a; }
+  .copy-btn.copied { background: var(--green); }
+
+  .output-meta {
+    display: flex;
+    gap: 16px;
+    padding: 10px 14px;
+    background: var(--soft);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+  .output-meta span { color: var(--muted); }
+  .output-meta strong { color: var(--accent); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 18px 0;
+  }
+
+  mark {
+    background: #fff0b3;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .filter-tag {
+    padding: 4px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: white;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .filter-tag.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-state .es-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state h3 { font-family: 'DM Serif Display', serif; color: var(--accent); margin-bottom: 6px; }
+
+  .checklist { margin: 12px 0; }
+  .checklist label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .checklist input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; }
+
+  .info-box {
+    background: var(--tag-bg);
+    border: 1px solid #bcd2f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    color: #1b3a5c;
+  }
+
+  .modal-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .modal-tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: inherit;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .note-third { font-size: 11px; color: var(--muted); margin-top: 4px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">OARS <span>Portal</span></div>
+    <div class="subtitle">Case Notes &amp; Email Templates</div>
+  </div>
+  <div class="search-wrap">
+    <div class="search-rel">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="globalSearch" placeholder="Search all notes &amp; templates..." oninput="doSearch(this.value)">
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <nav id="sideNav">
+    <div class="nav-section">Case Notes</div>
+    <button onclick="showPage('meetings-academic')" class="active">📋 Academic Meetings</button>
+    <button onclick="showPage('meetings-esa')">🐾 ESA Meetings</button>
+    <button onclick="showPage('meetings-housing')">🏠 Housing Meetings</button>
+    <button onclick="showPage('meetings-fls')">🌍 FLS Meetings</button>
+    <button onclick="showPage('casenotes-misc')">📝 Case Work Notes</button>
+    <button onclick="showPage('casenotes-archive')">📁 Archive Notes</button>
+    <button onclick="showPage('casenotes-new')">✨ New Requests</button>
+    <div class="nav-section">Email Templates</div>
+    <button onclick="showPage('emails-general')">✉️ General</button>
+    <button onclick="showPage('emails-esa')">🐾 ESA Emails</button>
+    <button onclick="showPage('emails-housing')">🏠 Housing Emails</button>
+    <button onclick="showPage('emails-academic')">📚 Academic Emails</button>
+    <button onclick="showPage('emails-testing')">🧪 Testing Emails</button>
+    <button onclick="showPage('emails-altformat')">📄 Alt Format Emails</button>
+    <button onclick="showPage('emails-transport')">🚌 Transportation</button>
+  </nav>
+
+  <main id="mainContent">
+    <div id="searchResultsBar" class="search-results-bar">
+      <span id="searchResultsText">Showing results for ""</span>
+      <button onclick="clearSearch()">✕ Clear</button>
+    </div>
+
+    <!-- ACADEMIC MEETINGS -->
+    <div id="page-meetings-academic" class="page active">
+      <h1 class="page-title">Academic Accommodation Meetings</h1>
+      <p class="page-desc">Generate case notes for academic accommodation intake, follow-up, and special requests.</p>
+      <div class="card-grid" id="grid-meetings-academic"></div>
+    </div>
+
+    <!-- ESA MEETINGS -->
+    <div id="page-meetings-esa" class="page">
+      <h1 class="page-title">ESA Meetings</h1>
+      <p class="page-desc">Emotional Support Animal intake and follow-up meeting notes.</p>
+      <div class="card-grid" id="grid-meetings-esa"></div>
+    </div>
+
+    <!-- HOUSING MEETINGS -->
+    <div id="page-meetings-housing" class="page">
+      <h1 class="page-title">Housing Accommodation Meetings</h1>
+      <p class="page-desc">Housing intake, requests, and process notes.</p>
+      <div class="card-grid" id="grid-meetings-housing"></div>
+    </div>
+
+    <!-- FLS MEETINGS -->
+    <div id="page-meetings-fls" class="page">
+      <h1 class="page-title">FLS Meetings</h1>
+      <p class="page-desc">Foreign Language Substitution intake meetings.</p>
+      <div class="card-grid" id="grid-meetings-fls"></div>
+    </div>
+
+    <!-- MISC CASE NOTES -->
+    <div id="page-casenotes-misc" class="page">
+      <h1 class="page-title">Case Work Notes</h1>
+      <p class="page-desc">Absence agreements, team decisions, transfers, and semester notifications.</p>
+      <div class="card-grid" id="grid-casenotes-misc"></div>
+    </div>
+
+    <!-- ARCHIVE NOTES -->
+    <div id="page-casenotes-archive" class="page">
+      <h1 class="page-title">Archive Notes</h1>
+      <p class="page-desc">Archiving student profiles for various reasons.</p>
+      <div class="card-grid" id="grid-casenotes-archive"></div>
+    </div>
+
+    <!-- NEW REQUEST NOTES -->
+    <div id="page-casenotes-new" class="page">
+      <h1 class="page-title">New Request Notes</h1>
+      <p class="page-desc">Meeting invites, documentation reminders, and new profile processing.</p>
+      <div class="card-grid" id="grid-casenotes-new"></div>
+    </div>
+
+    <!-- EMAIL PAGES -->
+    <div id="page-emails-general" class="page">
+      <h1 class="page-title">General Email Templates</h1>
+      <p class="page-desc">Walk-in hours, instructor notifications, and general responses.</p>
+      <div class="card-grid" id="grid-emails-general"></div>
+    </div>
+    <div id="page-emails-esa" class="page">
+      <h1 class="page-title">ESA Email Templates</h1>
+      <p class="page-desc">ESA process explanations, vaccination reminders, and follow-ups.</p>
+      <div class="card-grid" id="grid-emails-esa"></div>
+    </div>
+    <div id="page-emails-housing" class="page">
+      <h1 class="page-title">Housing Email Templates</h1>
+      <p class="page-desc">Housing requests, declinations, deadlines, and processes.</p>
+      <div class="card-grid" id="grid-emails-housing"></div>
+    </div>
+    <div id="page-emails-academic" class="page">
+      <h1 class="page-title">Academic Email Templates</h1>
+      <p class="page-desc">Documentation requirements, remote participation, grades, and CAA updates.</p>
+      <div class="card-grid" id="grid-emails-academic"></div>
+    </div>
+    <div id="page-emails-testing" class="page">
+      <h1 class="page-title">Testing Emails</h1>
+      <p class="page-desc">Scheduling issues, instructions, and testing coordinator referrals.</p>
+      <div class="card-grid" id="grid-emails-testing"></div>
+    </div>
+    <div id="page-emails-altformat" class="page">
+      <h1 class="page-title">Alternate Format Emails</h1>
+      <p class="page-desc">Alt format requests, completion notices, and Glean/AT reminders.</p>
+      <div class="card-grid" id="grid-emails-altformat"></div>
+    </div>
+    <div id="page-emails-transport" class="page">
+      <h1 class="page-title">Transportation Emails</h1>
+      <p class="page-desc">Duty driver info and accessible transportation accommodation.</p>
+      <div class="card-grid" id="grid-emails-transport"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Generate Note</h2>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA: Case Notes Templates
+// ─────────────────────────────────────────────
+const SPECIALIST = 'Peddle'; // default
+
+const CASE_NOTES = [
+  // ─── ACADEMIC MEETINGS ───
+  {
+    id: 'acad-intake-inperson',
+    page: 'meetings-academic',
+    icon: '🤝',
+    title: 'Intake – In Person',
+    tag: 'In Person',
+    tagType: '',
+    desc: 'New student walks in or meets on time for academic accommodation intake.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+      { id: 'year', label: 'Year', type: 'select', options: ['an incoming freshman','a freshman','a sophomore','a junior','a senior','a graduate student'] },
+      { id: 'major', label: 'Major', type: 'text', placeholder: 'e.g., Psychology' },
+      { id: 'state', label: 'State', type: 'text', placeholder: 'e.g., North Carolina' },
+      { id: 'disability', label: 'Disability/Disabilities', type: 'text', placeholder: 'e.g., ADHD, Anxiety Disorder' },
+      { id: 'concerns', label: 'Concerns / Notes', type: 'textarea', placeholder: 'Document what the student shared about their concerns...' },
+      { id: 'docInfo', label: 'Documentation Findings', type: 'textarea', placeholder: 'What was found in documentation review...' },
+      { id: 'accommodations', label: 'Accommodations Approved', type: 'textarea', placeholder: 'List accommodations and reasoning...' },
+      { id: 'hasTestingAccom', label: 'Has Testing Accommodations?', type: 'checkbox' },
+      { id: 'hasAT', label: 'Has Assistive Technology (Glean)?', type: 'checkbox' },
+      { id: 'disabilityMismatch', label: 'Disability Updated to Match Documentation?', type: 'checkbox' },
+      { id: 'testingCoord', label: 'Testing Coordinator Name', type: 'text', placeholder: 'e.g., Meredith' },
+      { id: 'asstTech', label: 'Assistive Tech Coordinator Name', type: 'text', placeholder: 'e.g., Joel' },
+    ],
+    generate: (f, spec) => {
+      let note = `The student presented ${f.arrival}. The student is ${f.year} majoring in ${f.major} from ${f.state}. ${spec} talked with the student about their accommodation concerns while attending High Point University. The student disclosed ${f.disability}. ${f.concerns} ${spec} quickly reviewed the student's documentation and found ${f.docInfo}.`;
+      if (f.disabilityMismatch) note += ` ${spec} updated the student's disability to accurately reflect the student's documentation.`;
+      note += ` The student and ${spec} decided on the following accommodations:\n\n${f.accommodations}\n\n${spec} applied the discussed accommodations to the student's profile. ${spec} sent the student their eligibility letter with the approved accommodations. ${spec} also sent an email explaining how to request accommodation notifications be sent to instructors.`;
+      if (f.hasTestingAccom) note += ` ${spec} told the student that some instructors want to provide testing accommodations while others prefer that students go to the testing center. ${spec} told the student if they were going to test with OARS, they needed to make sure to put their request in 3 days before they wanted to test and 6 days before for midterms and finals. ${spec} sent the email explaining how to schedule their exams.`;
+      if (f.hasAT) note += ` ${spec} talked with the student about Glean and sent them the invitation email. ${spec} also sent the student an email to schedule a meeting with ${f.asstTech || 'the Assistive Technology Coordinator'} so the student can receive training for their approved assistive technology.`;
+      note += ` ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`;
+      if (f.testingCoord) note += ` ${spec} introduced the student to ${f.testingCoord} so the student would know whom to check in with for testing.`;
+      if (f.hasAT && f.asstTech) note += ` ${spec} introduced the student to ${f.asstTech}, so they could schedule an appointment to learn Glean.`;
+      return note;
+    }
+  },
+  {
+    id: 'acad-intake-virtual',
+    page: 'meetings-academic',
+    icon: '💻',
+    title: 'Intake – Virtual',
+    tag: 'Virtual',
+    tagType: '',
+    desc: 'Academic accommodation intake conducted via Teams or virtual platform.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['immediately','a few minutes late'] },
+      { id: 'year', label: 'Year', type: 'select', options: ['an incoming freshman','a freshman','a sophomore','a junior','a senior','a graduate student'] },
+      { id: 'major', label: 'Major', type: 'text', placeholder: 'e.g., Biology' },
+      { id: 'state', label: 'State', type: 'text', placeholder: 'e.g., Virginia' },
+      { id: 'disability', label: 'Disability/Disabilities', type: 'text', placeholder: 'e.g., ADHD' },
+      { id: 'concerns', label: 'Concerns / Notes', type: 'textarea', placeholder: 'Student concerns...' },
+      { id: 'docInfo', label: 'Documentation Findings', type: 'textarea', placeholder: 'Documentation review...' },
+      { id: 'accommodations', label: 'Accommodations Approved', type: 'textarea', placeholder: 'Accommodations and reasons...' },
+      { id: 'hasTestingAccom', label: 'Has Testing Accommodations?', type: 'checkbox' },
+      { id: 'hasAT', label: 'Has Assistive Technology (Glean)?', type: 'checkbox' },
+      { id: 'disabilityMismatch', label: 'Disability Updated to Match Documentation?', type: 'checkbox' },
+      { id: 'asstTech', label: 'Assistive Tech Coordinator Name', type: 'text', placeholder: 'e.g., Joel' },
+    ],
+    generate: (f, spec) => {
+      let note = `${spec} started the meeting on time, and the student presented ${f.arrival}. The student is ${f.year} majoring in ${f.major} from ${f.state}. ${spec} talked with the student about their accommodation concerns while attending High Point University. The student disclosed ${f.disability}. ${f.concerns} ${spec} quickly reviewed the student's documentation and found ${f.docInfo}.`;
+      if (f.disabilityMismatch) note += ` ${spec} updated the student's disability to accurately reflect the student's documentation.`;
+      note += ` The student and ${spec} decided on the following accommodations:\n\n${f.accommodations}\n\n${spec} applied the discussed accommodations to the student's profile. ${spec} sent the student their eligibility letter with the approved accommodations. ${spec} also sent an email explaining how to request accommodation notifications be sent to instructors.`;
+      if (f.hasTestingAccom) note += ` ${spec} told the student that some instructors want to provide testing accommodations while others prefer that students go to the testing center. ${spec} told the student if they were going to test with OARS, they needed to make sure to put their request in 3 days before they wanted to test and 6 days before for midterms and finals. ${spec} sent the email explaining how to schedule their exams.`;
+      if (f.hasAT) note += ` ${spec} talked with the student about Glean and sent them the invitation email. ${spec} also sent the student an email to schedule a meeting with ${f.asstTech || 'the Assistive Technology Coordinator'} so the student can receive training for their approved assistive technology.`;
+      note += ` ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`;
+      return note;
+    }
+  },
+  {
+    id: 'acad-additional',
+    page: 'meetings-academic',
+    icon: '➕',
+    title: 'Additional Accommodations',
+    tag: 'Follow-Up',
+    tagType: 'green',
+    desc: 'Student requesting to change or add accommodations.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+      { id: 'request', label: 'Accommodation Request', type: 'text', placeholder: 'e.g., changing extended time to double time, adding a scribe' },
+      { id: 'concerns', label: 'Student Concerns / Reasoning', type: 'textarea', placeholder: 'What prompted the request...' },
+    ],
+    generate: (f, spec) => `The student presented ${f.arrival}. The student talked with ${spec} about ${f.request}. ${spec} spoke with the student about what prompted them to make this request and why they thought they needed it. ${f.concerns} ${spec} told the student that they were reasonable requests and approved the accommodations. ${spec} sent the student an updated eligibility letter and instructions for sending their accommodation notifications. ${spec} asked the student how classes were going and if they had any other concerns. ${spec} told the student that if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+  {
+    id: 'acad-standardized',
+    page: 'meetings-academic',
+    icon: '📑',
+    title: 'Fill Out Standardized Testing Accommodations Form',
+    tag: 'Form',
+    tagType: 'orange',
+    desc: 'Student needs standardized testing accommodation form completed.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+    ],
+    generate: (f, spec) => `The student presented ${f.arrival}. The student discussed needing the standardized testing accommodation form filled out with ${spec}. ${spec} looked up the student's documentation to ensure it was within the required time. ${spec} filled out the accommodation form. ${spec} talked with the student about how classes were going. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+  {
+    id: 'acad-request-additional',
+    page: 'meetings-academic',
+    icon: '📨',
+    title: 'Request Additional Academic Accommodations',
+    tag: 'Request',
+    tagType: '',
+    desc: 'Student requesting new accommodations; directions email sent.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+      { id: 'accommodations', label: 'Accommodation(s) Requested', type: 'text', placeholder: 'e.g., preferential seating' },
+    ],
+    generate: (f, spec) => `The student presented ${f.arrival}. The student talked with ${spec} about adding ${f.accommodations} as an accommodation. ${spec} told the student they would need to submit a request for the additional accommodation and sent the student the Directions to Request New Accommodations email via Accommodate. ${spec} asked the student how classes were going and if they had any other concerns. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+  {
+    id: 'acad-return-to-learn',
+    page: 'meetings-academic',
+    icon: '🩺',
+    title: 'Return to Learn',
+    tag: 'Temporary',
+    tagType: 'orange',
+    desc: 'Temporary accommodations for student returning from medical/disability-related absence.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+      { id: 'disability', label: 'Disability/Condition', type: 'text', placeholder: 'e.g., concussion' },
+      { id: 'concerns', label: 'Student Concerns', type: 'textarea', placeholder: 'Details shared by student...' },
+      { id: 'accommodation', label: 'Temporary Accommodation(s)', type: 'text', placeholder: 'e.g., reduced screen time, extended deadlines' },
+    ],
+    generate: (f, spec) => `The student presented ${f.arrival}. The student disclosed ${f.disability}. ${f.concerns} ${spec} talked with the student about adding ${f.accommodation} as temporary accommodations. ${spec} sent the notifications on behalf of the student to help limit screen time. ${spec} told the student to return to OARS if they start having other concerns or problems related to their ${f.disability}. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+  {
+    id: 'acad-no-show',
+    page: 'meetings-academic',
+    icon: '🚫',
+    title: 'Student Did Not Show for Meeting',
+    tag: 'No Show',
+    tagType: 'orange',
+    desc: 'Student was a no-call, no-show for their scheduled meeting.',
+    fields: [],
+    generate: (f, spec) => `The student was a no-call, no-show. ${spec} sent the Missed Meeting email.`
+  },
+
+  // ─── ESA MEETINGS ───
+  {
+    id: 'esa-intake-inperson',
+    page: 'meetings-esa',
+    icon: '🐕',
+    title: 'ESA Intake – In Person',
+    tag: 'In Person',
+    tagType: '',
+    desc: 'In-person ESA intake meeting covering process, documentation, and group decision timeline.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+      { id: 'year', label: 'Year', type: 'select', options: ['an incoming freshman','a freshman','a sophomore','a junior','a senior','a graduate student'] },
+      { id: 'major', label: 'Major', type: 'text', placeholder: 'e.g., Nursing' },
+      { id: 'state', label: 'State', type: 'text', placeholder: 'e.g., Georgia' },
+      { id: 'disability', label: 'Disability/Disabilities', type: 'text', placeholder: 'e.g., PTSD, Anxiety' },
+      { id: 'concerns', label: 'Student\'s Explanation / Concerns', type: 'textarea', placeholder: 'Why the student needs the ESA...' },
+    ],
+    generate: (f, spec) => `The student presented ${f.arrival}. The student is ${f.year} majoring in ${f.major} from ${f.state}. The student disclosed ${f.disability}. The student explained why they needed the animal with them. ${f.concerns} ${spec} confirmed that the student uploaded a picture of the ESA. ${spec} explained to the student that OARS makes ESA decisions as a group and the student would hear from ${spec} by the end of the week. ${spec} told the student if they were approved, they would have to have another meeting to talk about the rules and responsibilities before Residence Life could be notified of the approval. ${spec} explained if the student was not approved for the accommodation the student could submit additional documentation. ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+  {
+    id: 'esa-intake-virtual',
+    page: 'meetings-esa',
+    icon: '💻',
+    title: 'ESA Intake – Virtual',
+    tag: 'Virtual',
+    tagType: '',
+    desc: 'Virtual ESA intake with roommate conflict discussion.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['immediately','a few minutes late'] },
+      { id: 'year', label: 'Year', type: 'select', options: ['an incoming freshman','a freshman','a sophomore','a junior','a senior','a graduate student'] },
+      { id: 'major', label: 'Major', type: 'text', placeholder: 'e.g., Education' },
+      { id: 'state', label: 'State', type: 'text', placeholder: 'e.g., Texas' },
+      { id: 'disability', label: 'Disability/Disabilities', type: 'text', placeholder: 'e.g., Depression, PTSD' },
+      { id: 'concerns', label: 'Student\'s Explanation / Concerns', type: 'textarea', placeholder: 'Why the student needs the ESA...' },
+    ],
+    generate: (f, spec) => `${spec} started the meeting on time, and the student presented ${f.arrival}. The student is ${f.year} majoring in ${f.major} from ${f.state}. The student disclosed ${f.disability}. The student explained why they needed the animal with them. ${f.concerns} ${spec} confirmed that the student uploaded a picture of the ESA. ${spec} discussed the importance of talking with current/future roommates or suitemates to decrease roommate conflict. ${spec} explained to the student that OARS makes ESA decisions as a group and the student would hear from ${spec} by the end of the week. ${spec} told the student if they were approved, they would have to have another meeting to talk about the rules and responsibilities before Residence Life could be notified of the approval. ${spec} explained if the student was not approved for the accommodation, the student could submit additional documentation. ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+  {
+    id: 'esa-followup-inperson',
+    page: 'meetings-esa',
+    icon: '✅',
+    title: 'ESA Follow-Up – In Person',
+    tag: 'Follow-Up',
+    tagType: 'green',
+    desc: 'Post-approval ESA meeting covering rules, responsibilities, sticker/tag, and Res Life notification.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+      { id: 'tagNum', label: 'Tag Number', type: 'text', placeholder: 'e.g., 42' },
+      { id: 'startDate', label: 'On-Campus Start Date', type: 'text', placeholder: 'e.g., August 18, 2025' },
+      { id: 'disabilityMismatch', label: 'Disability Updated to Match Documentation?', type: 'checkbox' },
+    ],
+    generate: (f, spec) => {
+      let note = `The student presented ${f.arrival}. This was a follow-up meeting after the animal had been approved. ${spec} talked with the student about the rules and responsibilities and double-checked the ICE information. ${spec} confirmed the student has spoken with current/future roommates or suitemates about the ESA. ${spec} discussed the importance of talking with current/future roommates or suitemates to decrease roommate conflict. ${spec} attributed the ESA to the student's profile. ${spec} sent the information to Residence Life. ${spec} also gave the student a sticker and tag #${f.tagNum}. ${spec} marked the student's animal as "Not on Campus" and then created a personal calendar invite for ${f.startDate} as a reminder to change the student's animal status as "On Campus." ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`;
+      if (f.disabilityMismatch) note += ` ${spec} updated the student's disability to reflect the student's documentation accurately.`;
+      return note;
+    }
+  },
+  {
+    id: 'esa-followup-virtual',
+    page: 'meetings-esa',
+    icon: '💻',
+    title: 'ESA Follow-Up – Virtual',
+    tag: 'Follow-Up',
+    tagType: 'green',
+    desc: 'Virtual post-approval ESA meeting; student picks up sticker and tag.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['immediately','a few minutes late'] },
+      { id: 'tagNum', label: 'Tag Number', type: 'text', placeholder: 'e.g., 43' },
+      { id: 'startDate', label: 'On-Campus Start Date', type: 'text', placeholder: 'e.g., August 18, 2025' },
+      { id: 'disabilityMismatch', label: 'Disability Updated to Match Documentation?', type: 'checkbox' },
+    ],
+    generate: (f, spec) => {
+      let note = `${spec} started the meeting on time, and the student presented ${f.arrival}. This was a follow-up meeting after the animal had been approved. ${spec} talked with the student about the rules and responsibilities and double-checked the ICE information. ${spec} confirmed the student has spoken with current/future roommates or suitemates about the ESA. ${spec} discussed the importance of talking with current/future roommates or suitemates to decrease roommate conflict. ${spec} attributed the ESA to the student's profile. ${spec} sent the information to Residence Life. ${spec} also told the student they would need to pick up a sticker and tag #${f.tagNum}. ${spec} marked the student's animal as "Not on Campus" then created a personal calendar invite for ${f.startDate} as a reminder to change the student's animal status as "On Campus." ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`;
+      if (f.disabilityMismatch) note += ` ${spec} updated the student's disability to reflect the student's documentation accurately.`;
+      return note;
+    }
+  },
+
+  // ─── HOUSING MEETINGS ───
+  {
+    id: 'housing-intake-inperson',
+    page: 'meetings-housing',
+    icon: '🏠',
+    title: 'Housing Intake – In Person',
+    tag: 'In Person',
+    tagType: '',
+    desc: 'Initial housing accommodation meeting with group decision explanation.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+      { id: 'year', label: 'Year', type: 'select', options: ['an incoming freshman','a freshman','a sophomore','a junior','a senior','a graduate student'] },
+      { id: 'major', label: 'Major', type: 'text', placeholder: 'e.g., Business Administration' },
+      { id: 'state', label: 'State', type: 'text', placeholder: 'e.g., South Carolina' },
+      { id: 'disability', label: 'Disability/Disabilities', type: 'text', placeholder: 'e.g., Mobility Impairment' },
+      { id: 'accomRequest', label: 'Accommodation Requested', type: 'text', placeholder: 'e.g., ADA accessible room, single room' },
+      { id: 'concerns', label: 'Student Concerns / Explanation', type: 'textarea', placeholder: 'Why the student needs the housing accommodation...' },
+    ],
+    generate: (f, spec) => `The student presented ${f.arrival}. The student is ${f.year} majoring in ${f.major} from ${f.state}. The student disclosed ${f.disability}. The student explained why they needed ${f.accomRequest}. ${f.concerns} ${spec} explained to the student that OARS makes housing decisions as a group and the student would hear from ${spec} by the end of the week. ${spec} explained if the student was not approved for the accommodation the student could submit additional documentation. ${spec} also explained to the student the housing process if they were approved. ${spec} explained that if the student does not utilize their ADA housing placement, they will not automatically be offered an appropriate accommodated space the following year and will need to inform OARS of the need. ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+  {
+    id: 'housing-intake-virtual',
+    page: 'meetings-housing',
+    icon: '💻',
+    title: 'Housing Intake – Virtual',
+    tag: 'Virtual',
+    tagType: '',
+    desc: 'Virtual housing intake with same group decision and ADA placement explanation.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['immediately','a few minutes late'] },
+      { id: 'year', label: 'Year', type: 'select', options: ['an incoming freshman','a freshman','a sophomore','a junior','a senior','a graduate student'] },
+      { id: 'major', label: 'Major', type: 'text', placeholder: 'e.g., Business' },
+      { id: 'state', label: 'State', type: 'text', placeholder: 'e.g., Florida' },
+      { id: 'disability', label: 'Disability/Disabilities', type: 'text', placeholder: 'e.g., Diabetes' },
+      { id: 'accomRequest', label: 'Accommodation Requested', type: 'text', placeholder: 'e.g., private bathroom' },
+      { id: 'concerns', label: 'Student Concerns / Explanation', type: 'textarea', placeholder: 'Details...' },
+    ],
+    generate: (f, spec) => `${spec} started the meeting on time, and the student presented ${f.arrival}. The student is ${f.year} majoring in ${f.major} from ${f.state}. The student disclosed ${f.disability}. The student explained why they needed ${f.accomRequest}. ${f.concerns} ${spec} explained to the student that OARS makes housing decisions as a group and the student would hear from ${spec} by the end of the week. ${spec} explained if the student was not approved for the accommodation the student could submit additional documentation. ${spec} also explained to the student the housing process if they were approved. ${spec} explained that if the student does not utilize their ADA housing placement, they will not automatically be offered an appropriate accommodated space the following year and will need to inform OARS of the need. ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+  {
+    id: 'housing-how-to',
+    page: 'meetings-housing',
+    icon: '❓',
+    title: 'How Do I Get Housing Accommodations',
+    tag: 'Info Meeting',
+    tagType: 'orange',
+    desc: 'Student inquiring about getting housing accommodations – process explained.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+      { id: 'concerns', label: 'Student\'s Request / Concern', type: 'textarea', placeholder: 'What the student is requesting...' },
+      { id: 'barrier', label: 'What prevents the student from...', type: 'text', placeholder: 'e.g., living with a roommate' },
+    ],
+    generate: (f, spec) => `The student presented ${f.arrival}. The student talked with ${spec} about adding housing accommodations. The student told ${spec} ${f.concerns} ${spec} told the student the first step would be to get documentation and told the student they would send an email with the required documentation. ${spec} also said the student would need to submit a supplemental request and meet with OARS about why they are making this request. ${spec} told the student that OARS looks at what prevents the student from ${f.barrier}. ${spec} explained to the student that OARS makes housing decisions as a group. ${spec} explained that if the student was not approved for the accommodation, the student could submit additional documentation. ${spec} also explained the housing process to the student if they were approved. ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+  {
+    id: 'housing-additional',
+    page: 'meetings-housing',
+    icon: '➕',
+    title: 'Request Additional Housing Accommodations',
+    tag: 'Follow-Up',
+    tagType: 'green',
+    desc: 'Student requesting changes or additions to existing housing accommodations.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+      { id: 'request', label: 'Request Detail', type: 'text', placeholder: 'e.g., changing single room to ADA bathroom' },
+      { id: 'concerns', label: 'Student\'s Reasoning / Concerns', type: 'textarea', placeholder: 'What prompted the request...' },
+    ],
+    generate: (f, spec) => `The student presented ${f.arrival}. The student talked with ${spec} about ${f.request}. ${spec} spoke with the student about what prompted them to make this request and why they thought they needed it. ${f.concerns} ${spec} explained to the student that OARS makes housing decisions as a group and the student would hear from ${spec} by the end of the week. ${spec} explained that if the student was not approved for the accommodation, the student could submit additional documentation. ${spec} also explained the housing process to the student if they were approved. ${spec} explained that if the student does not utilize their ADA housing placement, they will not automatically be offered an appropriate accommodated space the following year and will need to inform OARS of the need. ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+
+  // ─── FLS MEETINGS ───
+  {
+    id: 'fls-intake-inperson',
+    page: 'meetings-fls',
+    icon: '🌍',
+    title: 'FLS Intake – In Person',
+    tag: 'In Person',
+    tagType: '',
+    desc: 'In-person Foreign Language Substitution intake meeting.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['as a walk-in','for their meeting a few minutes early','for their meeting on time','for their meeting a few minutes late'] },
+      { id: 'year', label: 'Year', type: 'select', options: ['an incoming freshman','a freshman','a sophomore','a junior','a senior','a graduate student'] },
+      { id: 'major', label: 'Major', type: 'text', placeholder: 'e.g., Communications' },
+      { id: 'state', label: 'State', type: 'text', placeholder: 'e.g., Ohio' },
+      { id: 'disability', label: 'Disability/Disabilities', type: 'text', placeholder: 'e.g., Dyslexia, Processing Disorder' },
+      { id: 'concerns', label: 'Student\'s Explanation', type: 'textarea', placeholder: 'Why they need the FLS...' },
+    ],
+    generate: (f, spec) => `The student presented ${f.arrival}. The student is ${f.year} majoring in ${f.major} from ${f.state}. The student disclosed ${f.disability}. The student explained why they needed a foreign language substitution. ${f.concerns} ${spec} explained to the student that OARS makes FLS decisions as a group. ${spec} explained the student would receive one of three emails. The first possibility would be to ask additional questions the team came up with. The second possibility would be that they were not approved, and it would tell them why so the student could submit additional documentation. The third possibility would be that they were approved for the accommodation and the FLS class list. ${spec} told the student they would hear from ${spec} by the end of the week. ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+  {
+    id: 'fls-intake-virtual',
+    page: 'meetings-fls',
+    icon: '💻',
+    title: 'FLS Intake – Virtual',
+    tag: 'Virtual',
+    tagType: '',
+    desc: 'Virtual Foreign Language Substitution intake.',
+    fields: [
+      { id: 'arrival', label: 'Student Arrival', type: 'select', options: ['immediately','a few minutes late'] },
+      { id: 'year', label: 'Year', type: 'select', options: ['an incoming freshman','a freshman','a sophomore','a junior','a senior','a graduate student'] },
+      { id: 'major', label: 'Major', type: 'text', placeholder: 'e.g., History' },
+      { id: 'state', label: 'State', type: 'text', placeholder: 'e.g., Maryland' },
+      { id: 'disability', label: 'Disability/Disabilities', type: 'text', placeholder: 'e.g., Dyslexia' },
+      { id: 'concerns', label: 'Student\'s Explanation', type: 'textarea', placeholder: 'Why they need the FLS...' },
+    ],
+    generate: (f, spec) => `${spec} started the meeting on time, and the student presented ${f.arrival}. The student is ${f.year} majoring in ${f.major} from ${f.state}. The student disclosed ${f.disability}. The student explained why they needed a foreign language substitution. ${f.concerns} ${spec} explained to the student that OARS makes FLS decisions as a group. ${spec} explained the student would receive one of three emails. The first possibility would be to ask additional questions the team came up with. The second possibility would be that they were not approved, and it would tell them why so the student could submit additional documentation. The third possibility would be that they were approved for the accommodation and the FLS class list. ${spec} told the student they would hear from ${spec} by the end of the week. ${spec} asked if they had any questions, comments, or concerns, and they did not. ${spec} told the student if they came up with any questions, ${spec}'s contact information could be found in the student's Accommodate portal.`
+  },
+
+  // ─── CASE WORK NOTES ───
+  {
+    id: 'absence-agreement',
+    page: 'casenotes-misc',
+    icon: '📄',
+    title: 'Absence Agreement – Sent',
+    tag: 'Case Work',
+    tagType: '',
+    desc: 'Finalized absence agreement sent to student.',
+    fields: [
+      { id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' },
+      { id: 'classes', label: 'Class(es)', type: 'text', placeholder: 'e.g., BIO 101, CHEM 202' },
+    ],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Absence Agreement (${f.classes})\nDuration: 10 Minutes\n\n${spec} sent a copy of the finalized agreement for ${f.classes} to the student.`,
+    hasMeta: true
+  },
+  {
+    id: 'team-need-info',
+    page: 'casenotes-misc',
+    icon: '🤔',
+    title: 'Team Decision – Need Additional Information',
+    tag: 'Team Decision',
+    tagType: 'orange',
+    desc: 'Team reviewed request; needs more information before deciding.',
+    fields: [
+      { id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' },
+      { id: 'questions', label: 'Questions Sent to Student', type: 'textarea', placeholder: 'List questions asked...' },
+    ],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Team Decision Meeting\nDuration: 20 Minutes\n\n${spec} brought the student's request to the Accessibility Team. The team determined that they needed more information before making a decision. ${spec} sent the student an email asking:\n${f.questions}`,
+    hasMeta: true
+  },
+  {
+    id: 'team-approved',
+    page: 'casenotes-misc',
+    icon: '✅',
+    title: 'Team Decision – Approved',
+    tag: 'Approved',
+    tagType: 'green',
+    desc: 'Team approved student request with specific reason.',
+    fields: [
+      { id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' },
+      { id: 'accommodation', label: 'Requested Accommodation', type: 'text', placeholder: 'e.g., single occupancy room' },
+      { id: 'reason', label: 'Reason for Approval (be specific)', type: 'textarea', placeholder: 'e.g., documentation supports need for reduced sensory environment due to sensory processing disorder' },
+      { id: 'sentWhat', label: 'What Was Sent to Student', type: 'select', options: ['an updated eligibility letter','a housing letter','the consideration for absence agreement email','the priority registration email','the FLS approval email','the FLS deferral email','the directions to notify their instructors of accommodations'] },
+    ],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Team Decision Meeting\nDuration: 20 Minutes\n\n${spec} brought the student's request to the Accessibility Team. The team determined that the student qualifies for ${f.accommodation} based on ${f.reason}. ${spec} sent the student ${f.sentWhat}.`,
+    hasMeta: true
+  },
+  {
+    id: 'team-denied',
+    page: 'casenotes-misc',
+    icon: '❌',
+    title: 'Team Decision – Denied',
+    tag: 'Denied',
+    tagType: 'orange',
+    desc: 'Team denied student request with specific reason.',
+    fields: [
+      { id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' },
+      { id: 'accommodation', label: 'Requested Accommodation', type: 'text', placeholder: 'e.g., private room' },
+      { id: 'reason', label: 'Reason for Denial (be specific)', type: 'textarea', placeholder: 'e.g., documentation does not support a functional limitation related to shared living spaces' },
+    ],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Team Decision Meeting\nDuration: 20 Minutes\n\n${spec} brought the student's request to the Accessibility Team. The team determined that the student does not qualify for ${f.accommodation} based on ${f.reason}. ${spec} sent the student an updated eligibility letter stating why the student was not approved for the accommodation.`,
+    hasMeta: true
+  },
+  {
+    id: 'transfer-specialist',
+    page: 'casenotes-misc',
+    icon: '🔄',
+    title: 'Transfer to New Specialist',
+    tag: 'Transfer',
+    tagType: '',
+    desc: 'Reassign student case from one specialist to another.',
+    fields: [
+      { id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' },
+      { id: 'from', label: 'From Specialist', type: 'text', placeholder: 'e.g., Smith' },
+      { id: 'to', label: 'To Specialist', type: 'text', placeholder: 'e.g., Peddle' },
+    ],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Progress\nDuration: 5 Minutes\n\n${spec} transferred the student from ${f.from} to ${f.to}.`,
+    hasMeta: true
+  },
+  {
+    id: 'semester-notifications',
+    page: 'casenotes-misc',
+    icon: '📬',
+    title: 'Semester Accommodation Notifications Sent',
+    tag: 'Email Correspondence',
+    tagType: '',
+    desc: 'Accommodation notifications approved and sent to instructors for the semester.',
+    fields: [
+      { id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' },
+      { id: 'term', label: 'Term', type: 'text', placeholder: 'e.g., Spring 2026' },
+      { id: 'hasCAA', label: 'Student Has CAA Accommodation?', type: 'checkbox' },
+    ],
+    generate: (f, spec) => {
+      let note = `Category: Email Correspondence\nSubject: ${f.date} – Faculty Correspondence\nDuration: 5 Minutes\n\n${spec} approved and sent accommodation notifications to instructors for the ${f.term} Semester.`;
+      if (f.hasCAA) note += ` ${spec} contacted the student's instructors and/or added the student to the Excel sheet regarding the Consideration for Absences agreement and course syllabi.`;
+      return note;
+    },
+    hasMeta: true
+  },
+
+  // ─── ARCHIVE NOTES ───
+  {
+    id: 'archive-not-finished',
+    page: 'casenotes-archive',
+    icon: '📁',
+    title: 'Did Not Finish Registration Process',
+    tag: 'Archived',
+    tagType: 'orange',
+    desc: 'Student did not complete the registration/request process.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Request Archived Due to Not Finishing the Request Process\nDuration: 5 Minutes\n\n${spec} archived the student's request as they did not finish the request process.`,
+    hasMeta: true
+  },
+  {
+    id: 'archive-no-accommodations',
+    page: 'casenotes-archive',
+    icon: '📁',
+    title: 'No Accommodations on File / Expired Temp',
+    tag: 'Archived',
+    tagType: 'orange',
+    desc: 'No accommodations on file or temporary accommodations have expired.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Archived\nDuration: 5 Minutes\n\n${spec} archived the student's profile because they do not have accommodations with OARS, or their temporary accommodations have expired.`,
+    hasMeta: true
+  },
+  {
+    id: 'archive-no-longer',
+    page: 'casenotes-archive',
+    icon: '📁',
+    title: 'No Longer Requesting Accommodations',
+    tag: 'Archived',
+    tagType: 'orange',
+    desc: 'Student decided they no longer need accommodations.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – No Longer Requesting Accommodations\nDuration: 5 Minutes\n\n${spec} closed the student's profile as the student decided they no longer needed accommodations.`,
+    hasMeta: true
+  },
+  {
+    id: 'archive-not-approved',
+    page: 'casenotes-archive',
+    icon: '📁',
+    title: 'Not Approved for Accommodations',
+    tag: 'Archived',
+    tagType: 'orange',
+    desc: 'Documentation did not support the request; not approved.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Progress\nDuration: 5 Minutes\n\n${spec} archived the student's profile as the documentation provided did not support the request and were not approved for accommodations.`,
+    hasMeta: true
+  },
+  {
+    id: 'archive-general',
+    page: 'casenotes-archive',
+    icon: '📁',
+    title: 'Not Registered / Graduated / Withdrew',
+    tag: 'Archived',
+    tagType: 'orange',
+    desc: 'Student not registered, no accommodations, graduated, or withdrew.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Archived Student\nDuration: 5 Minutes\n\n${spec} archived the student's profile as they did not have accommodations, are not currently a student at HPU, graduated from HPU, or withdrew.`,
+    hasMeta: true
+  },
+
+  // ─── NEW REQUESTS ───
+  {
+    id: 'new-meeting-invite',
+    page: 'casenotes-new',
+    icon: '📨',
+    title: 'Meeting Invite Sent',
+    tag: 'New Request',
+    tagType: '',
+    desc: 'Sent student invitation to meet and discuss accommodations.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Email Correspondence\nSubject: ${f.date} – Request New Accommodation\nDuration: 5 Minutes\n\n${spec} sent the student an invitation to meet and discuss accommodations.`,
+    hasMeta: true
+  },
+  {
+    id: 'new-needs-reschedule',
+    page: 'casenotes-new',
+    icon: '🔄',
+    title: 'Needs to Reschedule',
+    tag: 'Rescheduled',
+    tagType: 'orange',
+    desc: 'Student needs to reschedule their appointment.',
+    fields: [
+      { id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' },
+      { id: 'reason', label: 'Reason to Reschedule', type: 'text', placeholder: 'e.g., conflict with class schedule' },
+    ],
+    generate: (f, spec) => `Category: Case Work on Behalf of the Student\nSubject: ${f.date} – Student Needs to Reschedule Appointment\nDuration: 5 Minutes\n\n${spec} sent the student an email explaining why they need to reschedule due to ${f.reason}.`,
+    hasMeta: true
+  },
+  {
+    id: 'new-doc-reminder-current',
+    page: 'casenotes-new',
+    icon: '📋',
+    title: 'Documentation Email Reminder – Current Student',
+    tag: 'Reminder',
+    tagType: '',
+    desc: 'Sent documentation reminder to current OARS student via Accommodate bulk email.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Email Correspondence\nSubject: ${f.date} – Request New Accommodation\nDuration: 5 Minutes\n\n${spec} sent the student an email (via Accommodate bulk email) reminding them we need documentation.`,
+    hasMeta: true
+  },
+  {
+    id: 'new-duplicate',
+    page: 'casenotes-new',
+    icon: '🗂️',
+    title: 'Duplicate Request Archived',
+    tag: 'Archived',
+    tagType: 'orange',
+    desc: 'Student submitted a duplicate request.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Request New Accommodation\nDuration: 5 Minutes\n\n${spec} archived the request because the student submitted a duplicate request.`,
+    hasMeta: true
+  },
+  {
+    id: 'new-prev-approved',
+    page: 'casenotes-new',
+    icon: '♻️',
+    title: 'Requested Previously Approved Accommodations',
+    tag: 'Archived',
+    tagType: 'orange',
+    desc: 'Student requested already-approved accommodations; directions sent.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Email Correspondence\nSubject: ${f.date} – Archived Request\nDuration: 5 Minutes\n\n${spec} archived the request because the student was asking for accommodations that had already been approved. ${spec} sent the student the directions for sending notifications to instructors.`,
+    hasMeta: true
+  },
+  {
+    id: 'new-no-doc-followup',
+    page: 'casenotes-new',
+    icon: '📭',
+    title: 'No Follow-Up with Documentation',
+    tag: 'Archived',
+    tagType: 'orange',
+    desc: 'Student never followed up with required documentation.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Archived Request\nDuration: 5 Minutes\n\n${spec} archived the student's request as they never followed up with documentation.`,
+    hasMeta: true
+  },
+  {
+    id: 'new-never-scheduled',
+    page: 'casenotes-new',
+    icon: '📅',
+    title: 'Never Scheduled Meeting',
+    tag: 'Archived',
+    tagType: 'orange',
+    desc: 'Student never scheduled their intake meeting.',
+    fields: [{ id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' }],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Archived Request\nDuration: 5 Minutes\n\n${spec} archived the student's request as they never scheduled a meeting.`,
+    hasMeta: true
+  },
+  {
+    id: 'new-profile-processed',
+    page: 'casenotes-new',
+    icon: '✨',
+    title: 'Processed New Student Profile',
+    tag: 'Processed',
+    tagType: 'green',
+    desc: 'Processed new student registration and sent scheduling email.',
+    fields: [
+      { id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' },
+      { id: 'assignedTo', label: 'Assigned To (Specialist)', type: 'text', placeholder: 'e.g., Peddle' },
+    ],
+    generate: (f, spec) => `Category: Case Work Completed on Student's Behalf\nSubject: ${f.date} – Profile Processed\nDuration: 5 Minutes\n\n${spec} processed the student's registration, assigned it to ${f.assignedTo} and sent the student an email to schedule a meeting.`,
+    hasMeta: true
+  },
+  {
+    id: 'glean-education',
+    page: 'casenotes-new',
+    icon: '🎧',
+    title: 'Glean Education Meeting',
+    tag: 'Assistive Tech',
+    tagType: 'green',
+    desc: 'In-person Glean training/education meeting with student.',
+    fields: [
+      { id: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 23, 2026' },
+      { id: 'title', label: 'Meeting Title/Topic', type: 'text', placeholder: 'e.g., Glean Onboarding Session' },
+    ],
+    generate: (f, spec) => `Category: In-Person Meeting\nSubject: ${f.date} – "${f.title}"\nDuration: 30 Minutes\n\n${spec} met with student.`,
+    hasMeta: true
+  },
+];
+
+// ─────────────────────────────────────────────
+// DATA: Email Templates
+// ─────────────────────────────────────────────
+const EMAILS = [
+  // GENERAL
+  {
+    id: 'email-walkin-hours',
+    page: 'emails-general',
+    icon: '🚶',
+    title: 'Walk-In Hours Information',
+    tag: 'General',
+    tagType: '',
+    desc: 'Response offering walk-in hours to answer general questions.',
+    subject: 'Walk-In Hours – OARS',
+    body: `Hello,
+
+I would like to offer to stop by during the walk-in hours to help answer any general questions you may have. During that meeting a specialist will be able to discuss the process and clarify the documentation that you need. Intake meetings cannot be done during these times. Please feel free to stop by during the hours provided below:
+
+Walk-In Hours: Monday, Tuesday, Thursday, and Friday from 9am–12pm & 1pm–4pm
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-instructor-notification',
+    page: 'emails-general',
+    icon: '📬',
+    title: 'Student Notifying Instructors of Accommodations',
+    tag: 'General',
+    tagType: '',
+    desc: 'Instructions for a student on how to notify instructors each semester.',
+    subject: 'Sending Your Accommodation Notifications to Instructors',
+    body: `Hello,
+
+At the start of each semester, students are encouraged to inform their instructors if they wish to use their accommodations. I've sent you instructions in a separate email on how to do this. Once you've submitted your request, you'll receive a confirmation email once your specialist, [Specialist Name], has successfully submitted it. After that, it will be your responsibility to communicate with your instructors to ensure they've signed the letter confirming your accommodations. If you encounter any issues, please let me or your specialist know. [Specialist Name] has been copied on this email as well.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-parent',
+    page: 'emails-general',
+    icon: '👨‍👩‍👧',
+    title: 'Parent Accommodation Inquiry',
+    tag: 'General',
+    tagType: '',
+    desc: 'Response to a parent who has emailed OARS about their student\'s accommodations.',
+    subject: 'OARS Accommodation Inquiry',
+    body: `Dear [Parent Name],
+
+Thank you for contacting the Office of Accessibility Resources and Services (OARS). We understand that these matters are very important to you, and we appreciate the support you are providing to [Student Name] as they navigate their transition to university life.
+
+In an effort to more closely align with the federal laws that govern our office (including the Americans with Disabilities Act and Section 504 of the Rehabilitation Act of 1973), we have made changes to our policies regarding communication with parents. While we value and respect your involvement, OARS works directly with students to support the development of their self-advocacy skills, which are essential for success both in college and beyond. Parental involvement should primarily take the form of advising and encouraging the student from the sidelines. Please encourage [Student Name] to reach out if they have any questions. They are welcome to reach out to OARS directly by phone at 336-841-9026 or by emailing OARS at oars@highpoint.edu or me at tpeddle@highpoint.edu.
+
+Thank you for supporting [Student Name]'s efforts in gaining critical life skills during this time of transition.
+
+Warm regards,
+[Your Name]`
+  },
+  {
+    id: 'email-reschedule-conflict',
+    page: 'emails-general',
+    icon: '🗓️',
+    title: 'Reschedule – Scheduling Conflict',
+    tag: 'Scheduling',
+    tagType: 'orange',
+    desc: 'Virtual appointment conflicts with your schedule; request to reschedule.',
+    subject: 'Request to Reschedule Meeting',
+    body: `Hi [Recipient's Name],
+
+I wanted to let you know that I have a scheduling conflict with our upcoming meeting currently set for [original date and time]. I'm available [alternative date and time options], and I'd be happy to adjust the meeting to a time that works best for you.
+
+Please let me know your availability, and I'll go ahead and update the meeting in Accommodate once we confirm.
+
+Thanks for your understanding!
+
+Best regards,
+[Your Name]`
+  },
+  {
+    id: 'email-virtual-reminder',
+    page: 'emails-general',
+    icon: '🔔',
+    title: 'Reminder – Virtual Appointment via Teams',
+    tag: 'Reminder',
+    tagType: '',
+    desc: 'Reminder sent before a virtual Glean tutorial meeting.',
+    subject: 'Reminder – Virtual Appointment via Teams Link',
+    body: `Hi [First Name],
+
+I hope this email finds you well. This is a friendly reminder that you have a scheduled virtual meeting for a quick tutorial on Glean. You should have received the Teams link in your email inbox.
+
+If you have any questions, feel free to reach out. Otherwise, I'll see you today at [Time] via Teams.
+
+Have a great day!
+
+Joel`
+  },
+
+  // ESA EMAILS
+  {
+    id: 'email-esa-request',
+    page: 'emails-esa',
+    icon: '🐾',
+    title: 'ESA Request Process Overview',
+    tag: 'ESA',
+    tagType: '',
+    desc: 'Full ESA process explanation for a student inquiring about ESA accommodations.',
+    subject: 'ESA Accommodation Request Process',
+    body: `Hello,
+
+Thanks for reaching out. I'm happy to explain the process for requesting accommodation with our office for your ESA.
+
+1. Register for OARS: Please register using this link: https://highpoint-accommodate.symplicity.com/public_accommodation/
+
+2. Intake Meeting: After completing registration, you will need to attend an intake meeting with an Accessibility Specialist. You will be emailed with instructions on how to schedule a meeting to your HPU email, so please be sure to check for this!
+
+3. Documentation (can be uploaded to your Accommodate account or sent to OARS@highpoint.edu):
+   a. The ESA form must be completed by a licensed professional who is familiar with your needs. This provider must not be related to you.
+   b. Up to date vaccine records or wellness exam (including a rabies vaccine) – if your ESA is too young for this vaccine, an official ESA approval will not be possible at this time.
+   c. A photo of your ESA.
+
+Our process for any request takes 3-5 business days after all documentation is received. This process cannot be expedited as it will be reviewed in the order in which it was received. I encourage you to review the OARS Resident's Responsibilities for ESA policy on our website.
+
+Please note that your ESA is not permitted to be on campus unless it has been approved by our office and you have received an official letter from us.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-esa-vaccine-warning',
+    page: 'emails-esa',
+    icon: '💉',
+    title: 'ESA Vaccination Update Reminder (Final Warning)',
+    tag: 'ESA',
+    tagType: 'orange',
+    desc: 'Reminder that rabies vaccine is expiring and must be updated for ESA to remain on campus.',
+    subject: 'ESA Documentation Reminder – Vaccination Update Required',
+    body: `Hi [First Name],
+
+This is just a reminder email regarding the documentation for your ESA. The rabies vaccination expires on ___, so we will need the up-to-date vaccinations. If your ESA is no longer on campus, please respond to this email letting me know so I can make a note.
+
+Please know that you need this if your ESA is on campus. If we do not receive the documentation, your ESA will no longer be permitted on campus until the information has been updated.
+
+If you have any questions, please let me know.
+
+Thank you,
+[Your Name]`
+  },
+
+  // HOUSING EMAILS
+  {
+    id: 'email-housing-declined',
+    page: 'emails-housing',
+    icon: '🏠',
+    title: 'Housing Offer Declined',
+    tag: 'Housing',
+    tagType: 'orange',
+    desc: 'Student declined their ADA housing offer; deadline reminder sent.',
+    subject: 'ADA Housing Offer Declined – Important Deadline Information',
+    body: `Hello,
+
+I received the email below from housing regarding your decision to decline your ADA housing offer for the upcoming 2025-2026 academic year. Please note that if you would like to use your ADA housing accommodations for the 2026-2027 academic year, you must contact OARS by February 13, 2026, to be placed on the ADA housing list. If you do not contact OARS by this date, then you will be placed in the traditional housing portal for housing selection. If you choose to implement your housing accommodations after the February 14th, 2026 deadline, you'll be prioritized for housing that meets your disability-related needs, but the University cannot guarantee an ADA placement.
+
+Should you have any questions, please let me or [Specialist's First Name] know.
+
+Thanks,
+[Your Name]`
+  },
+  {
+    id: 'email-housing-delayed',
+    page: 'emails-housing',
+    icon: '⏱️',
+    title: 'Housing Offer – No Response / Declined by Default',
+    tag: 'Housing',
+    tagType: 'orange',
+    desc: 'Student did not respond to housing offer; treated as declined.',
+    subject: 'ADA Housing Offer – No Response Noted',
+    body: `Hi [Student Name],
+
+I received the email below from housing regarding the ADA housing offer for the 2025-2026 school year. Because of no response, housing has noted that this was a declined offer. Please note that if you would like to use your ADA housing accommodations for the 2025-2026 school year, you must contact OARS directly via email. If you choose to implement your ADA housing accommodation during the 2025-2026 school year, you'll be placed on a prioritized waitlist for housing that meets your disability-related needs.
+
+Should you have any questions, please let me or [Specialist First Name] know.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-housing-suitemates',
+    page: 'emails-housing',
+    icon: '👥',
+    title: 'Housing – Suitemate Request Clarification',
+    tag: 'Housing',
+    tagType: '',
+    desc: 'OARS does not control suitemate assignments; Housing Office handles this.',
+    subject: 'Housing Accommodation – Suitemate Request Clarification',
+    body: `Hello,
+
+I want to clarify that OARS does not have control over the number of suitemates assigned to you or who can be assigned to live with you. Our role is to determine if a student qualifies for ADA housing accommodations, such as the option to have or not have a roommate or suitemate, and then forward that approval to the Housing Office. The Housing Office is responsible for assigning housing locations and determining the number of suitemates based on availability.
+
+For additional assistance, you may wish to contact your community director or the Housing Department directly.
+
+If you'd like to move forward with requesting housing accommodation, with the understanding that we cannot guarantee a specific roommate or suitemate arrangement, please let me know, and I'll be happy to provide you with the necessary details.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-housing-allergy',
+    page: 'emails-housing',
+    icon: '🌿',
+    title: 'Housing – Allergy Accommodation Request',
+    tag: 'Housing',
+    tagType: '',
+    desc: 'Student requesting housing accommodations due to an allergy.',
+    subject: 'Housing Accommodation – Allergy Request',
+    body: `Hello,
+
+It appears that you are requesting housing accommodations due to an allergy. I will be more than happy to share the process with you when making that request with our office.
+
+1. Register for OARS: https://highpoint-accommodate.symplicity.com/public_accommodation/
+
+2. Documentation: I've attached the housing forms, which must be completed by a licensed professional who is more familiar with your needs. Any additional documentation (allergy testing, a letter from a doctor, etc.) can be uploaded at the time of registering or emailed to OARS (Oars@highpoint.edu).
+
+3. Intake Meeting: After completing registration and submitting your documentation, you will need to attend an intake meeting with an Accessibility Specialist.
+
+Our process for any request takes 3-5 business days. This process cannot be expedited as it will be reviewed in the order in which it was received. If approved, you will be assigned housing based on your needs in available ADA-compliant housing.
+
+If you have any questions, please let me know.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-housing-allergy-dietitian',
+    page: 'emails-housing',
+    icon: '🥗',
+    title: 'Allergy – Dietitian Referral',
+    tag: 'Referral',
+    tagType: 'green',
+    desc: 'Connect student with HPU\'s dietitian for allergy-related dietary needs.',
+    subject: 'HPU Dietitian Contact Information',
+    body: `Hello,
+
+I'd be happy to provide you with information on how to contact Rachel Carter, HPU's dietitian. She works closely with students on campus and can help you develop a plan and provide guidance on locating campus resources related to your allergies.
+
+Her information is:
+Rachel Carter: Rachel@harversttableculinary.com
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-housing-freshman',
+    page: 'emails-housing',
+    icon: '🎓',
+    title: 'Housing – Incoming Freshman (With Deadline)',
+    tag: 'Housing',
+    tagType: '',
+    desc: 'Housing accommodation process for incoming freshmen with important deadline information.',
+    subject: 'Housing Accommodation Request – Getting Started',
+    body: `Hello,
+
+Thanks for reaching out and submitting your housing accommodations request! I will be more than happy to guide you through the process.
+
+1. Register for OARS: https://highpoint-accommodate.symplicity.com/public_accommodation/
+
+2. Documentation: I've attached the housing forms, which must be completed by a licensed professional who is more familiar with your needs. Any additional documentation can be uploaded at the time of registering or emailed to OARS (Oars@highpoint.edu).
+
+3. Intake Meeting: After completing registration and submitting your documentation, you will need to attend an intake meeting with an Accessibility Specialist. You will be emailed with instructions on how to schedule a meeting to your HPU email.
+
+Our process for any request takes 3-5 business days. This process cannot be expedited as it will be reviewed in the order in which it was received. If approved, you will be assigned housing based on your needs in available ADA-compliant housing.
+
+IMPORTANT: If your accommodation is approved before the deadline (February 15th for upperclassmen or April 15th for incoming students), you'll have equal access to accessible housing, though it doesn't guarantee a specific residence hall or room. After the deadline, you'll be prioritized for housing that meets your disability-related needs.
+
+If you have any questions, feel free to reach out.
+
+Thank you!
+[Your Name]`
+  },
+
+  // ACADEMIC EMAILS
+  {
+    id: 'email-acad-no-doc',
+    page: 'emails-academic',
+    icon: '📚',
+    title: 'Academic Accommodations – No Documentation Submitted',
+    tag: 'Academic',
+    tagType: '',
+    desc: 'Student requested academic accommodations but hasn\'t submitted documentation yet.',
+    subject: 'Academic Accommodation Request – Getting Started',
+    body: `Hello,
+
+I hope you're doing well! I'd be happy to explain our process in requesting Academic Accommodations.
+
+1. Register for OARS: https://highpoint-accommodate.symplicity.com/public_accommodation/
+
+2. Documentation: Our office requires a 504 plan, IEP, or Neuropsychological evaluation. If you do not have either of these documents, OARS typically asks for detailed information about how your condition affects your daily activities, especially your schoolwork and access to campus. This documentation should come from a licensed professional, written on official letterhead, and include their signature and the date.
+
+3. Intake Meeting: After completing registration and submitting your documentation, you will need to attend an intake meeting with an Accessibility Specialist. You will be emailed with instructions on how to schedule a meeting to your HPU email.
+
+Should our office require more documentation, you will be contacted directly. Our process for any request takes 3-5 business days after all documentation is received.
+
+If you have any questions, please let me know.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-acad-func-limitations',
+    page: 'emails-academic',
+    icon: '📋',
+    title: 'Documentation Requirements – Functional Limitations',
+    tag: 'Academic',
+    tagType: '',
+    desc: 'Explains what documentation is needed regarding functional limitations.',
+    subject: 'OARS Documentation Requirements',
+    body: `Hello,
+
+I'm happy to explain the documentation requirements for your accommodation request.
+
+As part of the process with OARS, we require detailed information about how your condition affects your daily activities, especially your schoolwork and access to campus resources. This helps us understand your needs and decide if accommodation is appropriate.
+
+While we can consider accommodation, we'll need more time and detailed information to determine if you qualify as a person with a disability who is experiencing barriers to having the same opportunities as others. This information should come from a licensed professional, written on official letterhead, and include a signature and date.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-remote-surgery',
+    page: 'emails-academic',
+    icon: '🏥',
+    title: 'Remote Participation – Upcoming Surgery',
+    tag: 'Academic',
+    tagType: 'orange',
+    desc: 'Student requesting remote participation due to upcoming surgery.',
+    subject: 'Remote Participation Request – Accommodation Process',
+    body: `Hello,
+
+Thank you for contacting OARS and making the official request for accommodation!
+
+Before you get started with our process, I would like to disclose that remote participation is rarely approved by our office because HPU classes are designed to be interactive and require in-person participation. However, you can still request this accommodation, and an Accessibility Specialist will be happy to discuss it with you further and provide other options for accommodation.
+
+I encourage you to also communicate with your instructors to let them know of your upcoming surgery to best prepare for missed work, future tests, etc.
+
+To move forward, please:
+1. Register for OARS: https://highpoint-accommodate.symplicity.com/public_accommodation/
+2. Submit documentation that clearly states a diagnosis, outlines your functional limitations, and explains how these limitations substantially impact a major life activity. This should come from a licensed professional on official letterhead, signed and dated.
+3. Schedule an intake meeting with an Accessibility Specialist after completing registration.
+
+Our process takes 3-5 business days. Please note that any approved accommodation is not retroactive.
+
+If you have any questions, please let me know.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-remote-illness',
+    page: 'emails-academic',
+    icon: '🤒',
+    title: 'Remote Participation – General Illness',
+    tag: 'Academic',
+    tagType: 'orange',
+    desc: 'Student requesting remote participation due to general illness – OARS cannot accommodate.',
+    subject: 'OARS – General Illness Request',
+    body: `Hello,
+
+I'm sorry to hear you're not feeling well. I want to support you as best as I can, so here's some information that might help. OARS is unable to provide accommodation for general illnesses, as our focus is solely on disability-related concerns. I encourage you to reach out to your instructors promptly to discuss a plan for making up the missed work or tests.
+
+If you have any questions regarding OARS, please do not hesitate to contact me.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-grades',
+    page: 'emails-academic',
+    icon: '📊',
+    title: 'Student Requesting Grade Improvement Help',
+    tag: 'Academic',
+    tagType: '',
+    desc: 'OARS only handles disability accommodations, not grade issues.',
+    subject: 'Re: Grade Improvement',
+    body: `Hello,
+
+I understand that this is quite the situation. I recommend that you first talk to your professors to see how you can improve upon your grades and secondly reach out to your advisor/success coach for guidance. OARS only handles accommodation requests as it relates to a disability. If you would like to speak with someone from our office to discuss the general process with OARS, we can certainly do so. Please keep in mind that any new accommodation request will take 3 to 5 business days to process following a meeting.
+
+If you would like me to send you information or schedule a general OARS meeting, please let me know.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-caa-update',
+    page: 'emails-academic',
+    icon: '📝',
+    title: 'CAA Process Update – New Policy',
+    tag: 'CAA',
+    tagType: 'green',
+    desc: 'Explains updated CAA process where OARS handles instructor communication.',
+    subject: 'Consideration for Absences – Process Update',
+    body: `Hello,
+
+On December 17th we emailed you with changes regarding these specific accommodations. This change is designed to improve communication and ensure the accommodation is implemented smoothly on all your courses.
+
+What's Changing? You no longer need to discuss or complete the Consideration for Absences Agreement with each instructor. OARS will handle this for you!
+
+What Does This Mean for You?
+
+1. Submit Your Accommodation Request Each Semester:
+   - You still need to request that your approved accommodation be sent to your instructors.
+   - Follow the steps outlined in the email titled "Directions to Request Notice of Accommodations – ACTION REQUIRED."
+
+2. OARS Will Notify Your Instructors:
+   - Once we receive your request, OARS will contact your instructors on your behalf.
+   - You won't need to discuss this specific accommodation with them directly.
+
+3. Review of Your Absence Agreement:
+   - After OARS and your instructor(s) decide how to implement the accommodation, your Accessibility Specialist will email you the completed Consideration for Absences Agreement.
+   - Review this carefully to understand what's required of you when you need to miss class due to disability-related reasons.
+
+4. Stay in Communication:
+   - It's still your responsibility to stay in touch with your instructors about attendance, missed assignments, and other course requirements.
+
+Next Steps: Submit your notifications to instructors for the next academic semester.
+
+Thank you,
+[Your Name]`
+  },
+
+  // TESTING EMAILS
+  {
+    id: 'email-test-scheduling',
+    page: 'emails-testing',
+    icon: '🧪',
+    title: 'Can\'t Schedule Test – Past 3-Day Window',
+    tag: 'Testing',
+    tagType: 'orange',
+    desc: 'Student can\'t schedule because they missed the 3-business-day window.',
+    subject: 'Test Scheduling – 3-Day Advance Notice Required',
+    body: `Hi,
+
+To book a test room with OARS, you will need to schedule a test room 3 days in advance. That is more than likely the reason why you are unable to schedule. So, you have two options:
+
+1. Your instructor will need to proctor your exam and provide you with extra time and a distraction-reduced environment (if they are able to).
+
+2. Work with your instructor to coordinate a different day and time to take your test.
+
+I am attaching the testing timeline to this email to show you when is the proper time to submit your test. Some students submit their finals and midterms ahead of time, so please get those in for sure! I also sent you step-by-step instructions in a separate email on how to schedule your exam in Accommodate.
+
+If for any reason you are having issues with scheduling, please email Meredith, the OARS Testing Coordinator, directly: mcummin1@highpoint.edu
+
+If you have any questions, please let me know.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-test-submit',
+    page: 'emails-testing',
+    icon: '📝',
+    title: 'How to Schedule a Test with OARS',
+    tag: 'Testing',
+    tagType: '',
+    desc: 'Instructions for submitting a test scheduling request via Accommodate.',
+    subject: 'Scheduling Your Exam Through OARS – Instructions',
+    body: `Hello,
+
+To properly request to schedule your test with OARS you need to submit it via Accommodate. I have sent you instructions on how to do that. Please get this submission to us by this Friday at 5pm in order to test in our testing center. Please note that if this test is on a different date than your exam, your instructor must approve it. You may want to coordinate to make sure that this is okay.
+
+When you submit your request, just be sure to select the day and leave the time frame. Then select "check availability" at the bottom. On the right side of the screen there will be different time slots and rooms to select.
+
+I am adding Meredith Cummings, the OARS Testing Coordinator, to advise if you have any trouble with scheduling. If you have any questions, please let Meredith know.
+
+Thank you,
+[Your Name]`
+  },
+
+  // ALT FORMAT EMAILS
+  {
+    id: 'email-altformat-digital',
+    page: 'emails-altformat',
+    icon: '📱',
+    title: 'Alternate Format – Student Bought Digital Book',
+    tag: 'Alt Format',
+    tagType: '',
+    desc: 'Student bought a digital copy; separate PDF request not necessary.',
+    subject: 'Alternate Format Request Follow-Up',
+    body: `Hi [Student's Name],
+
+I was reviewing your alternate format request and noticed that you've purchased a digital copy of your textbook. Since you'll be receiving the digital version from the publisher, a separate request for a PDF is not necessary.
+
+If you have any questions about accessing or using the digital copy from the publisher, feel free to reach out—I'm happy to help.
+
+Have a great day!
+Joel`
+  },
+  {
+    id: 'email-altformat-confused',
+    page: 'emails-altformat',
+    icon: '❓',
+    title: 'Alternate Format – Confused About Next Steps',
+    tag: 'Alt Format',
+    tagType: '',
+    desc: 'Student is confused about what to do next to submit their alternate format request.',
+    subject: 'Re: Reminder to Submit Alternative Format Requests',
+    body: `Hi [Student],
+
+The first thing I recommend is watching the video about sending your Letter of Notification, which you'll find on your Accommodate Portal Home Page.
+
+If you've already completed that step, your Accessibility Specialist will review the letters and send them to your instructors. Once that's done, the Alternate Format tab will appear, and you'll be able to submit your alternate format request from there.
+
+Feel free to call me if you have any questions—I'm happy to help!
+
+Best,
+Joel`
+  },
+  {
+    id: 'email-altformat-summer',
+    page: 'emails-altformat',
+    icon: '☀️',
+    title: 'Alternate Format – Summer/Semester Request',
+    tag: 'Alt Format',
+    tagType: '',
+    desc: 'Student requesting alt format during summer or semester; needs to send letter first.',
+    subject: 'Alternate Format Textbook Request',
+    body: `Hi [Student Name],
+
+I hope you're doing well. I was forwarded your request for an alternate format of a textbook for your class.
+
+Before we can move forward, you'll need to send your instructor notification and then submit your alternate format request through Accommodate.
+
+I've sent you two separate emails that walk you through this process step by step. I hope this helps, but if you have any questions at all, please feel free to reach out.
+
+Have a great day,
+Joel`
+  },
+  {
+    id: 'email-altformat-proof-upload',
+    page: 'emails-altformat',
+    icon: '📤',
+    title: 'Alternate Format – Upload Proof of Purchase',
+    tag: 'Alt Format',
+    tagType: 'orange',
+    desc: 'Student has not uploaded proof of purchase in Accommodate.',
+    subject: 'Reminder – Upload Alternate Format Request in Accommodate',
+    body: `Hi [First Name],
+
+I hope this email finds you well. I have enclosed directions on how to complete an Alternate Format Request and upload proof of purchase in Accommodate. If you have any questions, please let me know.
+
+Have a great day.
+
+Step 1: Log in to Accommodate and click on the tab on the left that says Accommodations.
+
+Step 2: At the bottom of the dropdown you will see Alternative Format. Click on Alternative Format then click on Student Entered (beside Official Text).
+
+Step 3: Click on Upload Document for Alternative Format (Purple Box). Fill out all the items and then click on Submit. Make sure the ISBN# is correct and your proof of purchase includes receipt of payment and what type of alternate format you are requesting (pdf, etc.)
+
+****Follow these steps for each book request.
+
+Joel`
+  },
+  {
+    id: 'email-altformat-complete-student',
+    page: 'emails-altformat',
+    icon: '✅',
+    title: 'Alt Format Complete – Shared via SharePoint (Student)',
+    tag: 'Alt Format',
+    tagType: 'green',
+    desc: 'Alt format request is complete; files shared with student via SharePoint.',
+    subject: 'Alt Formats Completed and Shared via SharePoint',
+    body: `Hi [Recipient's First Name],
+
+I hope this message finds you well! I'm pleased to let you know that your Alternate Format request (PDF & Word) has been completed. The files have been shared with you via SharePoint.
+
+If you have any questions or need help accessing the materials, please don't hesitate to reach out.
+
+Have an amazing day!
+
+Best regards,
+Joel`
+  },
+  {
+    id: 'email-altformat-complete-instructor',
+    page: 'emails-altformat',
+    icon: '✅',
+    title: 'Alt Format Complete – HPU Professor/Instructor',
+    tag: 'Alt Format',
+    tagType: 'green',
+    desc: 'Accessible PDF updates completed; notifying professor.',
+    subject: 'Alternate Formats Complete',
+    body: `Hi [First Name],
+
+I hope this email finds you well. I'm pleased to inform you that the accessibility updates for the [ENTER CLASS] PDFs you requested have been completed. The updated PDFs are now fully accessible. If you have any questions, please do not hesitate to contact me.
+
+Have an amazing day!
+
+Joel`
+  },
+  {
+    id: 'email-altformat-pdf-corrected',
+    page: 'emails-altformat',
+    icon: '🔧',
+    title: 'PDF Corrected for Natural Reader',
+    tag: 'Alt Format',
+    tagType: 'green',
+    desc: 'PDF modified to be accessible for Natural Reader; attached and sent.',
+    subject: 'PDF Corrected',
+    body: `Hi [Student Name],
+
+I've made the necessary modifications to ensure that Natural Reader can easily process the PDFs. I've attached the corrected PDFs for you.
+
+If you have any additional requests, as always, feel free to reach out.
+
+Wishing you a great day!
+
+Best,
+Joel`
+  },
+
+  // TRANSPORTATION
+  {
+    id: 'email-transport-duty-driver',
+    page: 'emails-transport',
+    icon: '🚌',
+    title: 'Duty Driver – Approved Students',
+    tag: 'Transportation',
+    tagType: '',
+    desc: 'Contact information and instructions for approved accessible transportation students.',
+    subject: 'Accessible Transportation – Duty Driver Information',
+    body: `Hello,
+
+Students approved for Accessible Transportation accommodation are encouraged to connect with the HPU Transportation department. Students may schedule transportation in advance or contact the HPU Duty Driver spontaneously for transport. When contacting the Duty Driver, be prepared with your contact information, housing assignment, and class schedule.
+
+Chris Rudisill | crudisil@highpoint.edu | 336-870-6607
+
+Hours: Monday – Friday 7:00 AM to 8:00 PM
+Saturday – Sunday 10:00 AM to 6:00 PM
+
+If you have any questions, please let me know.
+
+Thank you,
+[Your Name]`
+  },
+  {
+    id: 'email-transport-parking',
+    page: 'emails-transport',
+    icon: '🅿️',
+    title: 'Requesting Duty Driver / Parking Pass',
+    tag: 'Transportation',
+    tagType: '',
+    desc: 'OARS does not issue handicap passes; explains duty driver option.',
+    subject: 'Transportation Accommodation – OARS Process',
+    body: `Hello,
+
+OARS does not have the ability to give you a handicap pass – that is something your local DMV will need to issue.
+
+Although we do not offer temporary parking stickers or tags for students, you can request specific accommodations through our office, such as a duty driver to assist with transportation around campus. To make this request, we need documentation that outlines your functional limitations and diagnosis. This could be a letter from your doctor and/or any relevant documents from your visits.
+
+You can upload these documents when you register for OARS: https://highpoint-accommodate.symplicity.com/public_accommodation/
+
+Once we have received your documents and registration, I will reach out to schedule a meeting to discuss your request. Please note that our process typically takes 3-5 business days after we receive your documents.
+
+If you have any questions, please let me know.
+
+Thank you,
+[Your Name]`
+  },
+];
+
+// ─────────────────────────────────────────────
+// APP LOGIC
+// ─────────────────────────────────────────────
+let currentPage = 'meetings-academic';
+let currentTemplate = null;
+
+function buildCards(data, gridId) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  grid.innerHTML = '';
+  if (data.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">🔍</div><h3>No results found</h3><p>Try different search terms</p></div>`;
+    return;
+  }
+  data.forEach(item => {
+    const isEmail = !!item.subject;
+    const tagClass = item.tagType === 'green' ? 'green' : item.tagType === 'orange' ? 'orange' : '';
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.setAttribute('data-search', `${item.title} ${item.desc} ${item.tag}`.toLowerCase());
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-icon">${item.icon}</div>
+        <div>
+          <div class="card-title">${item.title}</div>
+          <span class="card-tag ${tagClass}">${item.tag}</span>
+          ${isEmail ? '<span class="card-tag" style="margin-left:4px;background:#f3e8fd;color:#6b21a8">Email</span>' : ''}
+        </div>
+      </div>
+      <div class="card-body">${item.desc}</div>
+      <div class="card-footer">
+        <button class="btn btn-primary" onclick="openModal('${item.id}')">
+          ${isEmail ? '📧 Use Template' : '✍️ Generate Note'}
+        </button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function initApp() {
+  const pages = {
+    'meetings-academic': CASE_NOTES.filter(n => n.page === 'meetings-academic'),
+    'meetings-esa': CASE_NOTES.filter(n => n.page === 'meetings-esa'),
+    'meetings-housing': CASE_NOTES.filter(n => n.page === 'meetings-housing'),
+    'meetings-fls': CASE_NOTES.filter(n => n.page === 'meetings-fls'),
+    'casenotes-misc': CASE_NOTES.filter(n => n.page === 'casenotes-misc'),
+    'casenotes-archive': CASE_NOTES.filter(n => n.page === 'casenotes-archive'),
+    'casenotes-new': CASE_NOTES.filter(n => n.page === 'casenotes-new'),
+    'emails-general': EMAILS.filter(e => e.page === 'emails-general'),
+    'emails-esa': EMAILS.filter(e => e.page === 'emails-esa'),
+    'emails-housing': EMAILS.filter(e => e.page === 'emails-housing'),
+    'emails-academic': EMAILS.filter(e => e.page === 'emails-academic'),
+    'emails-testing': EMAILS.filter(e => e.page === 'emails-testing'),
+    'emails-altformat': EMAILS.filter(e => e.page === 'emails-altformat'),
+    'emails-transport': EMAILS.filter(e => e.page === 'emails-transport'),
+  };
+  Object.entries(pages).forEach(([pageId, items]) => {
+    buildCards(items, `grid-${pageId}`);
+  });
+}
+
+function showPage(pageId) {
+  currentPage = pageId;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${pageId}`).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => {
+    if (b.getAttribute('onclick') === `showPage('${pageId}')`) b.classList.add('active');
+  });
+  clearSearch();
+}
+
+function openModal(id) {
+  const template = [...CASE_NOTES, ...EMAILS].find(t => t.id === id);
+  if (!template) return;
+  currentTemplate = template;
+  const isEmail = !!template.subject;
+  document.getElementById('modalTitle').textContent = template.title;
+
+  let html = '';
+
+  if (isEmail) {
+    html += `<div class="info-box">📧 Edit the template below, then copy it. Fields in <strong>[brackets]</strong> need to be filled in.</div>`;
+    html += `<div class="form-row single"><div class="form-group"><label>Subject Line</label><input type="text" id="emailSubject" value="${template.subject}"></div></div>`;
+    html += `<div class="form-row single"><div class="form-group"><label>Email Body</label><textarea id="emailBody" style="min-height:280px;">${template.body}</textarea></div></div>`;
+    html += `<div class="output-box" id="emailPreview" style="display:none;"><button class="copy-btn" onclick="copyOutput('emailFinal')">Copy</button><div class="output-label">PREVIEW</div><div id="emailFinal"></div></div>`;
+    html += `<div style="display:flex;gap:10px;margin-top:14px;"><button class="btn btn-primary" onclick="previewEmail()">👁 Preview</button><button class="btn btn-secondary" onclick="copyEmailDirect()">📋 Copy As-Is</button></div>`;
+  } else {
+    const hasFields = template.fields && template.fields.length > 0;
+    html += `<div class="info-box">Fill in the fields below to generate your case note. The <strong>specialist name</strong> is pre-filled but can be changed.</div>`;
+    html += `<div class="form-row"><div class="form-group"><label>Specialist Name</label><input type="text" id="field_specialist" value="${SPECIALIST}"></div></div>`;
+    if (hasFields) {
+      const fields = template.fields;
+      let rowHtml = '<div class="form-row">';
+      let colCount = 0;
+      fields.forEach((field, idx) => {
+        if (field.type === 'checkbox') {
+          if (colCount % 2 === 0 && colCount > 0) rowHtml += '</div><div class="form-row">';
+          rowHtml += `<div class="form-group"><label style="flex-direction:row;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="field_${field.id}"> ${field.label}</label></div>`;
+          colCount++;
+        } else if (field.type === 'textarea' || field.type === 'select') {
+          rowHtml += '</div><div class="form-row single"><div class="form-group"><label>${field.label}</label>';
+          if (field.type === 'textarea') {
+            rowHtml += `<textarea id="field_${field.id}" placeholder="${field.placeholder || ''}"></textarea>`;
+          } else {
+            rowHtml += `<select id="field_${field.id}">${field.options.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`;
+          }
+          rowHtml += '</div></div><div class="form-row">';
+          colCount = 0;
+        } else {
+          if (colCount > 0 && colCount % 2 === 0) { rowHtml += '</div><div class="form-row">'; colCount = 0; }
+          rowHtml += `<div class="form-group"><label>${field.label}</label><input type="text" id="field_${field.id}" placeholder="${field.placeholder || ''}"></div>`;
+          colCount++;
+        }
+      });
+      rowHtml += '</div>';
+      html += rowHtml;
+    }
+    html += `<hr class="divider">`;
+    html += `<button class="btn btn-primary" onclick="generateNote()" style="width:100%;padding:10px;">⚡ Generate Case Note</button>`;
+    html += `<div id="noteOutput" style="display:none;">
+      <div class="output-meta" id="noteMeta" style="margin-top:16px;display:none;"></div>
+      <div class="output-box">
+        <button class="copy-btn" id="copyBtn" onclick="copyOutput('noteText')">Copy</button>
+        <div class="output-label">GENERATED NOTE</div>
+        <div id="noteText" style="white-space:pre-wrap;"></div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function generateNote() {
+  const template = currentTemplate;
+  const spec = document.getElementById('field_specialist')?.value || SPECIALIST;
+  const fields = {};
+  if (template.fields) {
+    template.fields.forEach(f => {
+      const el = document.getElementById(`field_${f.id}`);
+      if (!el) return;
+      if (f.type === 'checkbox') fields[f.id] = el.checked;
+      else fields[f.id] = el.value;
+    });
+  }
+  const note = template.generate(fields, spec);
+  document.getElementById('noteText').textContent = note;
+  document.getElementById('noteOutput').style.display = 'block';
+  if (template.hasMeta) {
+    const metaEl = document.getElementById('noteMeta');
+    metaEl.style.display = 'flex';
+    const lines = note.split('\n');
+    const subj = lines.find(l => l.startsWith('Subject:'))?.replace('Subject:', '').trim() || '';
+    const cat = lines.find(l => l.startsWith('Category:'))?.replace('Category:', '').trim() || '';
+    const dur = lines.find(l => l.startsWith('Duration:'))?.replace('Duration:', '').trim() || '';
+    metaEl.innerHTML = `<span><strong>Category:</strong> ${cat}</span><span><strong>Subject:</strong> ${subj}</span><span><strong>Duration:</strong> ${dur}</span>`;
+  }
+}
+
+function previewEmail() {
+  const subj = document.getElementById('emailSubject').value;
+  const body = document.getElementById('emailBody').value;
+  const preview = document.getElementById('emailPreview');
+  const final = document.getElementById('emailFinal');
+  preview.style.display = 'block';
+  final.textContent = `Subject: ${subj}\n\n${body}`;
+}
+
+function copyEmailDirect() {
+  const subj = document.getElementById('emailSubject').value;
+  const body = document.getElementById('emailBody').value;
+  copyToClipboard(`Subject: ${subj}\n\n${body}`, document.querySelector('.modal .btn-secondary'));
+}
+
+function copyOutput(id) {
+  const text = document.getElementById(id).textContent;
+  copyToClipboard(text, document.getElementById('copyBtn'));
+}
+
+function copyToClipboard(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+    }
+  });
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// ─── SEARCH ───
+function doSearch(query) {
+  query = query.trim().toLowerCase();
+  const bar = document.getElementById('searchResultsBar');
+  const resultsText = document.getElementById('searchResultsText');
+
+  if (!query) { clearSearch(); return; }
+
+  const all = [...CASE_NOTES, ...EMAILS];
+  const matches = all.filter(item => {
+    const searchable = `${item.title} ${item.desc} ${item.tag} ${item.page}`.toLowerCase();
+    return searchable.includes(query);
+  });
+
+  bar.classList.add('visible');
+  resultsText.textContent = `${matches.length} result${matches.length !== 1 ? 's' : ''} for "${query}"`;
+
+  // Group by page and rebuild grids
+  const pageGroups = {};
+  matches.forEach(item => {
+    if (!pageGroups[item.page]) pageGroups[item.page] = [];
+    pageGroups[item.page].push(item);
+  });
+
+  // Rebuild all grids with matches
+  const allPages = ['meetings-academic','meetings-esa','meetings-housing','meetings-fls','casenotes-misc','casenotes-archive','casenotes-new','emails-general','emails-esa','emails-housing','emails-academic','emails-testing','emails-altformat','emails-transport'];
+  allPages.forEach(p => {
+    const items = pageGroups[p] || [];
+    buildCards(items, `grid-${p}`);
+  });
+
+  // If only one page has results, navigate to it
+  const pagesWithResults = Object.keys(pageGroups);
+  if (pagesWithResults.length === 1) showPage(pagesWithResults[0]);
+}
+
+function clearSearch() {
+  document.getElementById('globalSearch').value = '';
+  document.getElementById('searchResultsBar').classList.remove('visible');
+  initApp(); // rebuild all grids
+}
+
+// Init
+initApp();
+</script>
+</body>
+</html>
