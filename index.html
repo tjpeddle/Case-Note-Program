@@ -29,11 +29,11 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
+body { font-family: 'IBM Plex Sans', sans-serif; background: #ffffff; color: var(--text); font-size: 14px; min-height: 100vh; }
 
 /* ── TOP BAR ── */
 header {
-  background: var(--navy);
+  background: linear-gradient(135deg, #1b3f72 0%, #2a5298 100%);
   border-bottom: 3px solid var(--gold);
   padding: 0 20px;
   height: 54px;
@@ -65,8 +65,8 @@ header {
 /* ── TABS ── */
 .tabs {
   display: flex; gap: 0;
-  background: var(--navy);
-  border-bottom: 1px solid rgba(255,255,255,.1);
+  background: #1b3f72;
+  border-bottom: 1px solid rgba(255,255,255,.12);
   padding: 0 20px;
   overflow-x: auto;
 }
@@ -108,6 +108,7 @@ header {
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
 }
 .card-head {
   display: flex; align-items: center; gap: 10px;
@@ -138,14 +139,35 @@ header {
 .card-body { display: none; padding: 14px 16px; }
 .card.open .card-body { display: block; }
 
-/* meta strip for case notes */
-.meta {
-  display: flex; flex-wrap: wrap; gap: 14px;
-  background: var(--bg); border-radius: 5px;
-  padding: 7px 10px; margin-bottom: 10px;
-  font-size: 11.5px; color: var(--muted);
+/* date/subject header for case notes */
+.note-header {
+  background: var(--blue-bg);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
 }
-.meta strong { color: var(--navy); }
+.note-header-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.note-header-row label {
+  font-size: 11px; font-weight: 700;
+  color: var(--navy); width: 62px; flex-shrink: 0;
+  text-transform: uppercase; letter-spacing: .4px;
+}
+.note-header-row input {
+  flex: 1; background: white; border: 1px solid var(--border);
+  border-radius: 4px; padding: 5px 9px;
+  font-family: inherit; font-size: 13px; color: var(--text);
+  outline: none; min-width: 0;
+}
+.note-header-row input:focus { border-color: var(--navy); }
+.note-header-row .subj-text {
+  flex: 1; font-size: 13px; color: var(--navy);
+  font-weight: 500; min-width: 0;
+}
 
 /* subject line for emails */
 .subj-row {
@@ -166,7 +188,7 @@ textarea.script {
   padding: 12px 14px; padding-right: 90px;
   background: #fafaf8; border: 1px solid var(--border); border-radius: 6px;
   font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.65;
-  color: var(--text); resize: vertical; outline: none;
+  color: var(--text); resize: none; outline: none;
 }
 textarea.script:focus { border-color: var(--navy); background: white; }
 
@@ -187,7 +209,7 @@ textarea.script:focus { border-color: var(--navy); background: white; }
 <body>
 
 <header>
-  <div class="logo">Joel · <span>AT &amp; Testing</span></div>
+  <div class="logo">Joel · <span>Assistive Technology & Testing</span></div>
   <div class="search-wrap">
     <svg width="14" height="14" fill="white" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
     <input id="searchBox" type="text" placeholder="Search scripts…" oninput="doSearch(this.value)" autocomplete="off">
@@ -768,15 +790,26 @@ function esc(s) {
 function renderCard(s) {
   const isEmail = s.type === 'email';
 
-  let metaHtml = '';
-  if (s.meta) {
-    metaHtml = '<div class="meta">';
-    for (const [k,v] of Object.entries(s.meta)) {
-      metaHtml += `<span><strong>${k}:</strong> ${esc(v)}</span>`;
-    }
-    metaHtml += '</div>';
+  // ── Case note header: editable Date + static Subject ──
+  let headerHtml = '';
+  if (!isEmail && s.meta) {
+    const subj = s.meta.Subject || '';
+    const dur  = s.meta.Duration || '';
+    headerHtml = `
+    <div class="note-header">
+      <div class="note-header-row">
+        <label>Date:</label>
+        <input type="text" id="date-${s.id}" placeholder="e.g. July 7, 2025">
+      </div>
+      <div class="note-header-row">
+        <label>Subject:</label>
+        <span class="subj-text">${esc(subj)}</span>
+      </div>
+      ${dur ? `<div class="note-header-row"><label>Duration:</label><span class="subj-text">${esc(dur)}</span></div>` : ''}
+    </div>`;
   }
 
+  // ── Email header: editable Subject ──
   const subjHtml = isEmail ? `
     <div class="subj-row">
       <label>Subject:</label>
@@ -797,7 +830,7 @@ function renderCard(s) {
       <span class="chevron">▶</span>
     </div>
     <div class="card-body">
-      ${metaHtml}
+      ${headerHtml}
       ${subjHtml}
       <div class="script-wrap">
         <textarea class="script" id="txt-${s.id}" rows="${rows}">${esc(s.script)}</textarea>
@@ -814,10 +847,31 @@ function toggleCard(id) {
 function copyIt(id) {
   const s = SCRIPTS.find(x => x.id === id);
   const body = document.getElementById(`txt-${id}`).value;
-  const subjEl = document.getElementById(`subj-${id}`);
-  const text = (s.type === 'email' && subjEl)
-    ? `Subject: ${subjEl.value}\n\n${body}`
-    : body;
+
+  let text = '';
+
+  if (s.type === 'email') {
+    // email: Subject line + blank line + body
+    const subjEl = document.getElementById(`subj-${id}`);
+    text = subjEl ? `Subject: ${subjEl.value}\n\n${body}` : body;
+
+  } else if (s.meta) {
+    // case note: Date + Subject (+ Duration) header then body
+    const dateEl = document.getElementById(`date-${id}`);
+    const dateVal = dateEl ? dateEl.value.trim() : '';
+    const subj = s.meta.Subject || '';
+    const dur  = s.meta.Duration || '';
+
+    let header = '';
+    header += `Date: ${dateVal || '[DATE]'}\n`;
+    header += `Subject: ${subj}\n`;
+    if (dur) header += `Duration: ${dur}\n`;
+    text = `${header}\n${body}`;
+
+  } else {
+    text = body;
+  }
+
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.getElementById(`cbtn-${id}`);
     btn.textContent = '✓ Copied!';
