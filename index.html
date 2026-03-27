@@ -55,14 +55,15 @@ header {
 .logo span { color: var(--gold); }
 
 .search-wrap { flex: 1; max-width: 320px; position: relative; }
-.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; opacity: .4; }
+.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; opacity: 1; filter: invert(30%) sepia(100%) saturate(500%) hue-rotate(330deg) brightness(1.4); }
 #searchBox {
   width: 100%; padding: 7px 12px 7px 32px;
-  background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  background: rgba(255,40,10,.32); border: 2px solid rgba(255,61,46,.9);
   border-radius: 20px; color: #fff; font-size: 13px; font-family: inherit; outline: none;
+  box-shadow: 0 0 20px rgba(255,61,46,.5), inset 0 0 20px rgba(255,40,10,.35);
 }
-#searchBox::placeholder { color: rgba(255,255,255,.25); }
-#searchBox:focus { background: rgba(0,255,136,.07); border-color: var(--gold); }
+#searchBox::placeholder { color: rgba(255,130,110,.9); }
+#searchBox:focus { background: rgba(255,40,10,.42); border-color: #ff3d2e; box-shadow: 0 0 32px rgba(255,61,46,.7), inset 0 0 24px rgba(255,40,10,.45); }
 #clearBtn { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; padding: 4px 8px; display: none; }
 #clearBtn:hover { color: #fff; }
 
@@ -170,12 +171,47 @@ header {
 .script-view::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
 .placeholder {
+  position: relative;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   height: 100%; min-height: 300px;
-  color: #1e2235; gap: 12px; font-size: 15px; text-align: center;
+  gap: 14px; text-align: center;
+  overflow: hidden;
 }
-.placeholder-icon { font-size: 56px; opacity: .25; }
+.placeholder-bg-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  pointer-events: none;
+}
+.placeholder-bg-text span {
+  font-size: 72px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 12px;
+  color: rgba(0,255,136,.04);
+  white-space: nowrap;
+  user-select: none;
+}
+.placeholder-bg-text span:nth-child(1) { color: rgba(255,61,46,.18); }
+.placeholder-bg-text span:nth-child(2) { color: rgba(0,255,136,.18); }
+.placeholder-bg-text span:nth-child(3) { color: rgba(0,176,255,.18); }
+.placeholder-hand {
+  font-size: 62px;
+  position: relative; z-index: 1;
+  filter: hue-rotate(80deg) saturate(4) brightness(1.2);
+}
+.placeholder-label {
+  font-size: 15px;
+  color: rgba(0,255,136,.35);
+  font-weight: 600;
+  letter-spacing: 1px;
+  position: relative; z-index: 1;
+}
 
 .script-panel { display: none; }
 .script-panel.active { display: block; }
@@ -999,8 +1035,13 @@ function buildSidebar(sidebar, tabId) {
 
 function buildView(view, tabId) {
   view.innerHTML = `<div class="placeholder" id="placeholder-${tabId}">
-    <div class="placeholder-icon">👈</div>
-    <div>Select a script from the left</div>
+    <div class="placeholder-bg-text">
+      <span>Case Notes</span>
+      <span>AT Emails</span>
+      <span>Testing Emails</span>
+    </div>
+    <div class="placeholder-hand">👈</div>
+    <div class="placeholder-label">Select a script from the left</div>
   </div>`;
   allScripts().filter(s => s.tab === tabId).forEach(s => {
     view.innerHTML += renderPanel(s);
