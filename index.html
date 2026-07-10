@@ -3,608 +3,914 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OARS · Script Builder</title>
+<title>Joel · OARS Script Builder</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&display=swap');
 
 :root {
-  --bg:        #0d0d14;
-  --panel:     #13131e;
-  --sidebar:   #0f0f18;
-  --border:    #1e2235;
-  --text:      #e0e8ff;
-  --muted:     #6b7aaa;
-  --header-bg: #080810;
-  --gold:      #00ff88;
-  --accent:    #00e676;
-  --accent2:   #ff4f6d;
+  --bg:#0d0d14;--panel:#13131e;--sidebar:#0f0f18;--border:#1e2235;
+  --text:#e0e8ff;--muted:#6b7aaa;--header-bg:#080810;
+  --gold:#00ff88;--accent:#00e676;--accent2:#ff4f6d;
   --c1:#ff3d2e;--c2:#ff8c00;--c3:#00c853;--c4:#00b0ff;--c5:#d500f9;
   --c6:#ff1744;--c7:#00e5ff;--c8:#ffab00;--c9:#3d5afe;--ca:#f50057;
 }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
+/* BACKUP BANNER */
+#backupBanner{display:none;background:linear-gradient(90deg,rgba(255,171,0,.12),rgba(255,171,0,.06));border-bottom:1px solid rgba(255,171,0,.35);padding:8px 22px;font-size:12px;color:#ffcc40;font-weight:600;align-items:center;gap:10px;}
+#backupBanner.show{display:flex;}
+#backupBanner .banner-icon{font-size:15px;}
+#backupBanner .banner-text{flex:1;}
+#backupBanner .banner-export{background:rgba(255,171,0,.2);border:1px solid rgba(255,171,0,.4);color:#ffcc40;font-family:inherit;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;}
+#backupBanner .banner-export:hover{background:rgba(255,171,0,.35);}
+#backupBanner .banner-dismiss{background:none;border:none;color:rgba(255,171,0,.5);cursor:pointer;font-size:16px;padding:0 4px;}
 
-/* ── BACKUP BANNER ── */
-#backupBanner {
-  display: none;
-  background: linear-gradient(90deg, rgba(255,171,0,.12), rgba(255,171,0,.06));
-  border-bottom: 1px solid rgba(255,171,0,.35);
-  padding: 8px 22px;
-  font-size: 12px; color: #ffcc40; font-weight: 600;
-  display: flex; align-items: center; gap: 10px;
-}
-#backupBanner.show { display: flex; }
-#backupBanner .banner-icon { font-size: 15px; }
-#backupBanner .banner-text { flex: 1; }
-#backupBanner .banner-export {
-  background: rgba(255,171,0,.2); border: 1px solid rgba(255,171,0,.4);
-  color: #ffcc40; font-family: inherit; font-size: 11px; font-weight: 800;
-  padding: 4px 12px; border-radius: 20px; cursor: pointer; white-space: nowrap;
-  transition: background .15s;
-}
-#backupBanner .banner-export:hover { background: rgba(255,171,0,.35); }
-#backupBanner .banner-dismiss {
-  background: none; border: none; color: rgba(255,171,0,.5); cursor: pointer; font-size: 16px; padding: 0 4px;
-}
-#backupBanner .banner-dismiss:hover { color: #ffcc40; }
+/* HEADER */
+header{background:var(--header-bg);border-bottom:2px solid var(--gold);padding:0 22px;height:56px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:300;box-shadow:0 2px 20px rgba(0,255,136,.08);}
+.logo{color:#fff;font-size:16px;font-weight:700;white-space:nowrap;letter-spacing:-.3px;}
+.logo span{color:var(--gold);}
+.search-wrap{flex:1;max-width:300px;position:relative;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;filter:invert(30%) sepia(100%) saturate(500%) hue-rotate(330deg) brightness(1.4);}
+#searchBox{width:100%;padding:7px 12px 7px 32px;background:rgba(255,40,10,.32);border:2px solid rgba(255,61,46,.9);border-radius:20px;color:#fff;font-size:13px;font-family:inherit;outline:none;box-shadow:0 0 20px rgba(255,61,46,.5),inset 0 0 20px rgba(255,40,10,.35);}
+#searchBox::placeholder{color:rgba(255,130,110,.9);}
+#searchBox:focus{background:rgba(255,40,10,.42);border-color:#ff3d2e;}
+#clearBtn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 8px;display:none;}
+.hdr-btn{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);color:var(--gold);font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;font-family:inherit;white-space:nowrap;letter-spacing:.3px;transition:background .15s;}
+.hdr-btn:hover{background:rgba(0,255,136,.16);}
+.hdr-btn.export-btn{background:rgba(0,176,255,.08);border-color:rgba(0,176,255,.3);color:#00b0ff;}
+.hdr-btn.export-btn:hover{background:rgba(0,176,255,.18);}
+.hdr-btn.import-btn{background:rgba(255,171,0,.08);border-color:rgba(255,171,0,.3);color:#ffab00;}
+.hdr-btn.import-btn:hover{background:rgba(255,171,0,.18);}
+#importFileInput{display:none;}
 
-/* ── HEADER ── */
-header {
-  background: var(--header-bg); border-bottom: 2px solid var(--gold);
-  padding: 0 22px; height: 56px;
-  display: flex; align-items: center; gap: 10px;
-  position: sticky; top: 0; z-index: 300;
-  box-shadow: 0 2px 20px rgba(0,255,136,.08);
-}
-.logo { color: #fff; font-size: 16px; font-weight: 700; white-space: nowrap; letter-spacing: -.3px; }
-.logo span { color: var(--gold); }
-.search-wrap { flex: 1; max-width: 300px; position: relative; }
-.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; filter: invert(30%) sepia(100%) saturate(500%) hue-rotate(330deg) brightness(1.4); }
-#searchBox {
-  width: 100%; padding: 7px 12px 7px 32px;
-  background: rgba(255,40,10,.32); border: 2px solid rgba(255,61,46,.9);
-  border-radius: 20px; color: #fff; font-size: 13px; font-family: inherit; outline: none;
-  box-shadow: 0 0 20px rgba(255,61,46,.5), inset 0 0 20px rgba(255,40,10,.35);
-}
-#searchBox::placeholder { color: rgba(255,130,110,.9); }
-#searchBox:focus { background: rgba(255,40,10,.42); border-color: #ff3d2e; }
-#clearBtn { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; padding: 4px 8px; display: none; }
-#clearBtn:hover { color: #fff; }
+/* TABS */
+.tabs{display:flex;background:var(--header-bg);padding:0 22px;border-bottom:1px solid var(--border);gap:4px;}
+.tab-btn{padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;margin-bottom:-1px;transition:color .15s;}
+.tab-btn:hover{color:rgba(255,255,255,.8);}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
 
-.hdr-btn {
-  background: rgba(0,255,136,.08); border: 1px solid rgba(0,255,136,.25);
-  color: var(--gold); font-size: 11px; font-weight: 700;
-  padding: 6px 12px; border-radius: 20px;
-  cursor: pointer; font-family: inherit; white-space: nowrap; letter-spacing: .3px;
-  transition: background .15s;
-}
-.hdr-btn:hover { background: rgba(0,255,136,.16); }
+/* LAYOUT */
+.tab-page{display:none;}
+.tab-page.active{display:flex;}
 
-.hdr-btn.export-btn {
-  background: rgba(0,176,255,.08); border-color: rgba(0,176,255,.3); color: #00b0ff;
-}
-.hdr-btn.export-btn:hover { background: rgba(0,176,255,.18); }
+/* SIDEBAR */
+.sidebar{width:234px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--border);overflow-y:auto;padding:14px 12px 20px;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:#1e2235;border-radius:4px;}
+.section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold);background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.18);border-radius:5px;padding:5px 8px;margin:16px 0 8px;display:flex;align-items:center;gap:5px;}
+.section-label:first-child{margin-top:0;}
+.section-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.section-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.section-actions{display:flex;gap:3px;flex-shrink:0;}
+.section-icon-btn{background:none;border:none;cursor:pointer;font-size:10px;padding:1px 3px;border-radius:3px;color:rgba(0,255,136,.5);line-height:1;transition:color .15s,background .15s;}
+.section-icon-btn:hover{color:var(--gold);background:rgba(0,255,136,.15);}
+.section-icon-btn.del:hover{color:#ff6b87;background:rgba(255,79,109,.15);}
+.section-rename-input{flex:1;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.35);border-radius:4px;color:#fff;font-family:inherit;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;outline:none;padding:1px 5px;}
 
-.hdr-btn.import-btn {
-  background: rgba(255,171,0,.08); border-color: rgba(255,171,0,.3); color: #ffab00;
-}
-.hdr-btn.import-btn:hover { background: rgba(255,171,0,.18); }
-
-/* hidden file input */
-#importFileInput { display: none; }
-
-/* ── TOP TABS ── */
-.tabs { display: flex; background: var(--header-bg); padding: 0 22px; border-bottom: 1px solid var(--border); gap: 4px; }
-.tab-btn { padding: 10px 20px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; margin-bottom: -1px; transition: color .15s; }
-.tab-btn:hover { color: rgba(255,255,255,.8); }
-.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
-
-/* ── LAYOUT ── */
-.tab-page { display: none; }
-.tab-page.active { display: flex; }
-
-/* ── SIDEBAR ── */
-.sidebar { width: 234px; flex-shrink: 0; background: var(--sidebar); border-right: 1px solid var(--border); overflow-y: auto; padding: 14px 12px 20px; }
-.sidebar::-webkit-scrollbar { width: 4px; }
-.sidebar::-webkit-scrollbar-thumb { background: #1e2235; border-radius: 4px; }
-
-.section-label {
-  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.4px;
-  color: var(--gold); background: rgba(0,255,136,.07); border: 1px solid rgba(0,255,136,.18);
-  border-radius: 5px; padding: 5px 8px; margin: 16px 0 8px;
-  display: flex; align-items: center; gap: 5px;
-}
-.section-label:first-child { margin-top: 0; }
-.section-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
-.section-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.section-actions { display: flex; gap: 3px; flex-shrink: 0; }
-.section-icon-btn { background: none; border: none; cursor: pointer; font-size: 10px; padding: 1px 3px; border-radius: 3px; color: rgba(0,255,136,.5); line-height: 1; transition: color .15s, background .15s; }
-.section-icon-btn:hover { color: var(--gold); background: rgba(0,255,136,.15); }
-.section-icon-btn.del:hover { color: #ff6b87; background: rgba(255,79,109,.15); }
-.section-rename-input { flex: 1; background: rgba(0,255,136,.08); border: 1px solid rgba(0,255,136,.35); border-radius: 4px; color: #fff; font-family: inherit; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; outline: none; padding: 1px 5px; }
-
-.script-btn { display: block; width: 100%; padding: 7px 14px; margin-bottom: 5px; border: none; border-radius: 20px; font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer; text-align: left; line-height: 1.3; color: #fff; letter-spacing: .2px; transition: filter .15s, transform .1s, box-shadow .15s; }
-.script-btn:hover { filter: brightness(1.2); transform: translateX(3px); box-shadow: 0 2px 12px rgba(0,0,0,.4); }
-.script-btn.active { outline: 2px solid var(--gold); outline-offset: 1px; filter: brightness(1.15); box-shadow: 0 0 12px rgba(0,255,136,.2); }
-.btn-icon { margin-right: 5px; font-size: 11px; }
+.script-btn{display:block;width:100%;padding:7px 14px;margin-bottom:5px;border:none;border-radius:20px;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;text-align:left;line-height:1.3;color:#fff;letter-spacing:.2px;transition:filter .15s,transform .1s,box-shadow .15s;}
+.script-btn:hover{filter:brightness(1.2);transform:translateX(3px);box-shadow:0 2px 12px rgba(0,0,0,.4);}
+.script-btn.active{outline:2px solid var(--gold);outline-offset:1px;filter:brightness(1.15);box-shadow:0 0 12px rgba(0,255,136,.2);}
+.btn-icon{margin-right:5px;font-size:11px;}
 .c1{background:var(--c1)}.c2{background:var(--c2)}.c3{background:var(--c3)}.c4{background:var(--c4)}.c5{background:var(--c5)}
 .c6{background:var(--c6)}.c7{background:var(--c7)}.c8{background:var(--c8)}.c9{background:var(--c9)}.ca{background:var(--ca)}
 
-.add-group-btn { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; padding: 6px 10px; margin-top: 14px; background: rgba(0,176,255,.07); border: 1px dashed rgba(0,176,255,.3); border-radius: 20px; color: #00b0ff; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit; letter-spacing: .5px; transition: background .15s; }
-.add-group-btn:hover { background: rgba(0,176,255,.14); border-color: rgba(0,176,255,.5); }
-.add-script-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 7px 10px; margin-top: 6px; background: rgba(0,255,136,.07); border: 1px dashed rgba(0,255,136,.3); border-radius: 20px; color: var(--gold); font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; letter-spacing: .5px; }
-.add-script-btn:hover { background: rgba(0,255,136,.14); border-color: rgba(0,255,136,.5); }
+.add-group-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:6px 10px;margin-top:14px;background:rgba(0,176,255,.07);border:1px dashed rgba(0,176,255,.3);border-radius:20px;color:#00b0ff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.5px;transition:background .15s;}
+.add-group-btn:hover{background:rgba(0,176,255,.14);border-color:rgba(0,176,255,.5);}
+.add-script-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:7px 10px;margin-top:6px;background:rgba(0,255,136,.07);border:1px dashed rgba(0,255,136,.3);border-radius:20px;color:var(--gold);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;letter-spacing:.5px;}
+.add-script-btn:hover{background:rgba(0,255,136,.14);border-color:rgba(0,255,136,.5);}
 
-/* ── SCRIPT VIEW ── */
-.script-view { flex: 1; background: var(--panel); overflow-y: auto; padding: 28px 32px; }
-.script-view::-webkit-scrollbar { width: 5px; }
-.script-view::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+/* SCRIPT VIEW */
+.script-view{flex:1;background:var(--panel);overflow-y:auto;padding:28px 32px;}
+.script-view::-webkit-scrollbar{width:5px;}
+.script-view::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.placeholder{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:300px;gap:14px;text-align:center;overflow:hidden;}
+.placeholder-bg-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;pointer-events:none;}
+.placeholder-bg-text span{font-size:72px;font-weight:900;text-transform:uppercase;letter-spacing:12px;white-space:nowrap;user-select:none;}
+.placeholder-bg-text span:nth-child(1){color:rgba(255,61,46,.18);}
+.placeholder-bg-text span:nth-child(2){color:rgba(0,255,136,.18);}
+.placeholder-bg-text span:nth-child(3){color:rgba(0,176,255,.18);}
+.placeholder-hand{font-size:62px;position:relative;z-index:1;filter:hue-rotate(80deg) saturate(4) brightness(1.2);}
+.placeholder-label{font-size:15px;color:rgba(0,255,136,.35);font-weight:600;letter-spacing:1px;position:relative;z-index:1;}
+.placeholder-sub{font-size:12px;color:var(--muted);position:relative;z-index:1;margin-top:-6px;}
 
-.placeholder { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 300px; gap: 14px; text-align: center; overflow: hidden; }
-.placeholder-bg-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; pointer-events: none; }
-.placeholder-bg-text span { font-size: 72px; font-weight: 900; text-transform: uppercase; letter-spacing: 12px; white-space: nowrap; user-select: none; }
-.placeholder-bg-text span:nth-child(1){color:rgba(255,61,46,.18)}.placeholder-bg-text span:nth-child(2){color:rgba(0,255,136,.18)}.placeholder-bg-text span:nth-child(3){color:rgba(0,176,255,.18)}
-.placeholder-hand { font-size: 62px; position: relative; z-index: 1; filter: hue-rotate(80deg) saturate(4) brightness(1.2); }
-.placeholder-label { font-size: 15px; color: rgba(0,255,136,.35); font-weight: 600; letter-spacing: 1px; position: relative; z-index: 1; }
-.placeholder-sub { font-size: 12px; color: var(--muted); position: relative; z-index: 1; margin-top: -6px; }
+.script-panel{display:none;}
+.script-panel.active{display:block;}
+.script-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:5px;}
+.script-when{font-size:12px;color:var(--muted);margin-bottom:22px;font-style:italic;}
+.fields{background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.18);border-radius:8px;padding:14px 16px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px;}
+.field-row{display:flex;align-items:center;gap:10px;}
+.field-row label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gold);width:60px;flex-shrink:0;}
+.field-row input{flex:1;padding:7px 11px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px;color:#fff;outline:none;}
+.field-row input:focus{border-color:var(--gold);background:rgba(0,255,136,.06);}
+.field-row input::placeholder{color:var(--muted);}
+.field-val{flex:1;font-size:13px;font-weight:600;color:var(--gold);opacity:.85;}
+.script-box{position:relative;}
+textarea.script-text{width:100%;padding:16px 18px;padding-top:50px;background:#0a0a12;border:1px solid var(--border);border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.75;color:#c8d8ff;resize:none;outline:none;}
+textarea.script-text:focus{border-color:rgba(0,255,136,.35);}
+.copy-btn{position:absolute;top:10px;right:10px;background:var(--gold);color:#000;border:none;padding:6px 18px;border-radius:20px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:background .15s;}
+.copy-btn:hover{background:#00e676;box-shadow:0 0 14px rgba(0,255,136,.4);}
+.copy-btn.done{background:#00c853;}
+.delete-btn{position:absolute;top:10px;right:98px;background:rgba(255,79,109,.15);color:#ff6b87;border:1px solid rgba(255,79,109,.3);padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;}
+.delete-btn:hover{background:rgba(255,79,109,.3);}
+.save-indicator{margin-top:6px;font-size:11px;font-weight:700;min-height:16px;letter-spacing:.3px;}
+.title-row{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+.rename-btn{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.25);color:var(--gold);border-radius:6px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.title-input{font-size:20px;font-weight:700;color:#fff;background:rgba(255,255,255,.06);border:1px solid var(--gold);border-radius:6px;padding:3px 10px;font-family:inherit;outline:none;flex:1;}
 
-.tab-page { display: none; }
-.tab-page.active { display: flex; }
-.script-panel { display: none; }
-.script-panel.active { display: block; }
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:500;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#13131e;border:1px solid rgba(0,255,136,.2);border-radius:14px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 0 60px rgba(0,255,136,.08),0 24px 60px rgba(0,0,0,.6);}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-header h2{font-size:18px;font-weight:700;color:var(--gold);}
+.modal-close{background:rgba(255,255,255,.06);border:none;width:30px;height:30px;border-radius:50%;color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:rgba(255,79,109,.2);color:#ff6b87;}
+.modal-body{padding:20px 22px 24px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gold);margin-bottom:6px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;color:#fff;outline:none;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);background:rgba(0,255,136,.05);}
+.form-group input::placeholder,.form-group textarea::placeholder{color:var(--muted);}
+.form-group select option{background:#13131e;}
+.form-group textarea{resize:vertical;min-height:160px;}
+.color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.color-swatch{height:34px;border-radius:20px;cursor:pointer;border:2px solid transparent;transition:transform .1s,box-shadow .15s;}
+.color-swatch:hover{transform:scale(1.08);}
+.color-swatch.selected{border-color:var(--gold);box-shadow:0 0 10px rgba(0,255,136,.4);}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border);margin-top:4px;}
+.btn-cancel{padding:8px 20px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-family:inherit;font-size:13px;cursor:pointer;}
+.btn-save{padding:8px 24px;background:var(--gold);border:none;border-radius:20px;color:#000;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;}
+.btn-save:hover{background:#00e676;}
 
-.script-title { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 5px; }
-.script-when { font-size: 12px; color: var(--muted); margin-bottom: 22px; font-style: italic; }
-.fields { background: rgba(0,255,136,.05); border: 1px solid rgba(0,255,136,.18); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; }
-.field-row { display: flex; align-items: center; gap: 10px; }
-.field-row label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--gold); width: 60px; flex-shrink: 0; }
-.field-row input { flex: 1; padding: 7px 11px; background: rgba(255,255,255,.04); border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 13px; color: #fff; outline: none; }
-.field-row input:focus { border-color: var(--gold); background: rgba(0,255,136,.06); }
-.field-row input::placeholder { color: var(--muted); }
-.field-val { flex: 1; font-size: 13px; font-weight: 600; color: var(--gold); opacity: .85; }
-.script-box { position: relative; }
-textarea.script-text { width: 100%; padding: 16px 18px; padding-top: 50px; background: #0a0a12; border: 1px solid var(--border); border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.75; color: #c8d8ff; resize: none; outline: none; }
-textarea.script-text:focus { border-color: rgba(0,255,136,.35); }
-.copy-btn { position: absolute; top: 10px; right: 10px; background: var(--gold); color: #000; border: none; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit; letter-spacing: .3px; transition: background .15s; }
-.copy-btn:hover { background: #00e676; box-shadow: 0 0 14px rgba(0,255,136,.4); }
-.copy-btn.done { background: #00c853; }
-.delete-btn { position: absolute; top: 10px; right: 98px; background: rgba(255,79,109,.15); color: #ff6b87; border: 1px solid rgba(255,79,109,.3); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; }
-.delete-btn:hover { background: rgba(255,79,109,.3); }
-.save-indicator { margin-top: 6px; font-size: 11px; font-weight: 700; min-height: 16px; letter-spacing: .3px; }
-.title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
-.rename-btn { background: rgba(0,255,136,.1); border: 1px solid rgba(0,255,136,.25); color: var(--gold); border-radius: 6px; padding: 3px 9px; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
-.rename-btn:hover { background: rgba(0,255,136,.22); }
-.title-input { font-size: 20px; font-weight: 700; color: #fff; background: rgba(255,255,255,.06); border: 1px solid var(--gold); border-radius: 6px; padding: 3px 10px; font-family: inherit; outline: none; flex: 1; }
+/* IMPORT MODAL */
+#importModal .modal{max-width:460px;}
+.import-summary{background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.18);border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.8;}
+.import-summary strong{color:var(--gold);}
+.import-merge-choice{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+.merge-option{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;}
+.merge-option input[type=radio]{margin-top:2px;flex-shrink:0;accent-color:var(--gold);}
+.merge-option-label{font-size:13px;font-weight:700;color:#fff;}
+.merge-option-desc{font-size:11px;color:var(--muted);margin-top:2px;}
 
-/* ── MODALS ── */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); z-index: 500; display: none; align-items: center; justify-content: center; }
-.modal-overlay.open { display: flex; }
-.modal { background: #13131e; border: 1px solid rgba(0,255,136,.2); border-radius: 14px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 60px rgba(0,255,136,.08), 0 24px 60px rgba(0,0,0,.6); }
-.modal-header { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.modal-header h2 { font-size: 18px; font-weight: 700; color: var(--gold); }
-.modal-close { background: rgba(255,255,255,.06); border: none; width: 30px; height: 30px; border-radius: 50%; color: var(--muted); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-.modal-close:hover { background: rgba(255,79,109,.2); color: #ff6b87; }
-.modal-body { padding: 20px 22px 24px; }
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--gold); margin-bottom: 6px; }
-.form-group input,.form-group select,.form-group textarea { width: 100%; padding: 9px 12px; background: rgba(255,255,255,.04); border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; color: #fff; outline: none; }
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus { border-color: var(--gold); background: rgba(0,255,136,.05); }
-.form-group input::placeholder,.form-group textarea::placeholder { color: var(--muted); }
-.form-group select option { background: #13131e; }
-.form-group textarea { resize: vertical; min-height: 160px; }
-.color-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
-.color-swatch { height: 34px; border-radius: 20px; cursor: pointer; border: 2px solid transparent; transition: transform .1s, box-shadow .15s; }
-.color-swatch:hover { transform: scale(1.08); }
-.color-swatch.selected { border-color: var(--gold); box-shadow: 0 0 10px rgba(0,255,136,.4); }
-.modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid var(--border); margin-top: 4px; }
-.btn-cancel { padding: 8px 20px; background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 20px; color: var(--muted); font-family: inherit; font-size: 13px; cursor: pointer; }
-.btn-cancel:hover { color: #fff; }
-.btn-save { padding: 8px 24px; background: var(--gold); border: none; border-radius: 20px; color: #000; font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
-.btn-save:hover { background: #00e676; box-shadow: 0 0 14px rgba(0,255,136,.4); }
+/* SEARCH */
+#searchPage{display:none;}
+#searchPage.active{display:block;}
+.search-results{padding:20px 24px;max-width:760px;}
+.search-banner{background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.22);border-radius:8px;padding:8px 14px;font-size:12.5px;margin-bottom:14px;display:none;color:var(--gold);font-weight:600;}
+.search-banner.on{display:block;}
+.search-hit{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:8px;padding:12px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s;}
+.search-hit:hover{border-left-color:var(--accent2);}
+.search-hit-title{font-weight:700;color:#fff;font-size:14px;}
+.search-hit-tab{font-size:11px;color:var(--gold);margin-top:3px;font-weight:600;}
+.search-hit-when{font-size:12px;color:#6b7aaa;margin-top:4px;font-style:italic;}
 
-/* ── IMPORT CONFIRM MODAL ── */
-#importModal .modal { max-width: 460px; }
-.import-summary { background: rgba(0,255,136,.05); border: 1px solid rgba(0,255,136,.18); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; font-size: 13px; line-height: 1.8; }
-.import-summary strong { color: var(--gold); }
-.import-merge-choice { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
-.merge-option { display: flex; align-items: flex-start; gap: 10px; background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: border-color .15s; }
-.merge-option:hover { border-color: rgba(0,255,136,.35); }
-.merge-option input[type=radio] { margin-top: 2px; flex-shrink: 0; accent-color: var(--gold); }
-.merge-option-label { font-size: 13px; font-weight: 700; color: #fff; }
-.merge-option-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-/* ── SEARCH ── */
-#searchPage { display: none; }
-#searchPage.active { display: block; }
-.search-results { padding: 20px 24px; max-width: 760px; }
-.search-banner { background: rgba(0,255,136,.07); border: 1px solid rgba(0,255,136,.22); border-radius: 8px; padding: 8px 14px; font-size: 12.5px; margin-bottom: 14px; display: none; color: var(--gold); font-weight: 600; }
-.search-banner.on { display: block; }
-.search-hit { background: var(--panel); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; cursor: pointer; transition: border-color .15s; }
-.search-hit:hover { border-left-color: var(--accent2); }
-.search-hit-title { font-weight: 700; color: #fff; font-size: 14px; }
-.search-hit-tab { font-size: 11px; color: var(--gold); margin-top: 3px; font-weight: 600; }
-.search-hit-when { font-size: 12px; color: #6b7aaa; margin-top: 4px; font-style: italic; }
-
-/* ── TAB MANAGER ── */
-#tabManagerModal .modal { max-width: 460px; }
-.tab-manager-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-.tab-manager-row { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; }
-.tab-manager-row input { flex: 1; background: transparent; border: none; font-family: inherit; font-size: 13px; color: #fff; outline: none; padding: 2px 4px; }
-.tab-manager-row input:focus { background: rgba(0,255,136,.05); border-radius: 4px; }
-.tab-remove-btn { background: none; border: none; color: rgba(255,79,109,.5); cursor: pointer; font-size: 16px; padding: 0 4px; line-height: 1; transition: color .15s; }
-.tab-remove-btn:hover { color: #ff6b87; }
-.add-tab-row-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 9px; background: rgba(0,255,136,.06); border: 1px dashed rgba(0,255,136,.28); border-radius: 8px; color: var(--gold); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; }
-.add-tab-row-btn:hover { background: rgba(0,255,136,.12); }
-.tab-manager-hint { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
+/* TAB MANAGER */
+#tabManagerModal .modal{max-width:460px;}
+.tab-manager-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.tab-manager-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:8px 12px;}
+.tab-manager-row input{flex:1;background:transparent;border:none;font-family:inherit;font-size:13px;color:#fff;outline:none;padding:2px 4px;}
+.tab-remove-btn{background:none;border:none;color:rgba(255,79,109,.5);cursor:pointer;font-size:16px;padding:0 4px;line-height:1;}
+.tab-remove-btn:hover{color:#ff6b87;}
+.add-tab-row-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;background:rgba(0,255,136,.06);border:1px dashed rgba(0,255,136,.28);border-radius:8px;color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.tab-manager-hint{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;}
 </style>
 </head>
 <body>
 
-<!-- ── BACKUP REMINDER BANNER ── -->
 <div id="backupBanner">
   <span class="banner-icon">💾</span>
-  <span class="banner-text">Your scripts are saved in this browser only. Export a backup so you don't lose them if you clear your history.</span>
+  <span class="banner-text">Your scripts are saved in this browser only — export a backup so you don't lose them again.</span>
   <button class="banner-export" onclick="exportData()">⬇ Export Backup Now</button>
-  <button class="banner-dismiss" onclick="dismissBanner()" title="Dismiss">✕</button>
+  <button class="banner-dismiss" onclick="dismissBanner()">✕</button>
 </div>
 
 <header>
-  <div class="logo">OARS · <span>Script Builder</span></div>
+  <div class="logo">Joel · <span>Script Builder</span></div>
   <div class="search-wrap">
     <svg width="14" height="14" fill="white" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
     <input id="searchBox" type="text" placeholder="Search all scripts…" oninput="doSearch(this.value)" autocomplete="off">
   </div>
   <button id="clearBtn" onclick="clearSearch()">✕ Clear</button>
-  <button class="hdr-btn export-btn" onclick="exportData()" title="Export all scripts to a backup file">⬇ Export</button>
-  <button class="hdr-btn import-btn" onclick="triggerImport()" title="Import scripts from a backup file">⬆ Import</button>
+  <button class="hdr-btn export-btn" onclick="exportData()">⬇ Export</button>
+  <button class="hdr-btn import-btn" onclick="triggerImport()">⬆ Import</button>
   <button class="hdr-btn" onclick="openTabManager()">⚙ Tabs</button>
   <input type="file" id="importFileInput" accept=".json" onchange="handleImportFile(event)">
 </header>
 
 <div class="tabs" id="tabBar"></div>
-
 <div id="searchPage">
   <div class="search-results">
     <div id="searchBanner" class="search-banner"></div>
     <div id="searchResults"></div>
   </div>
 </div>
-
 <div id="mainLayout"></div>
 
 <!-- ADD SCRIPT MODAL -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <div class="modal-header">
-      <h2>Add New Script</h2>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
+    <div class="modal-header"><h2>Add New Script</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div class="modal-body">
       <div class="form-group"><label>Title</label><input type="text" id="m-title" placeholder="e.g. Student Check-In Email"></div>
       <div class="form-group"><label>Tab</label><select id="m-tab" onchange="refreshGroupSelect()"></select></div>
       <div class="form-group"><label>Group</label><select id="m-group"></select></div>
-      <div class="form-group"><label>Type</label>
-        <select id="m-type"><option value="note">Case Note</option><option value="email">Email</option></select>
-      </div>
-      <div class="form-group">
-        <label>Subject Line <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(emails: editable subject / case notes: shown as "Subject:" on copy)</span></label>
-        <input type="text" id="m-subject" placeholder="e.g. Follow-Up – AT Support">
-      </div>
+      <div class="form-group"><label>Type</label><select id="m-type"><option value="note">Case Note</option><option value="email">Email</option></select></div>
+      <div class="form-group"><label>Subject Line</label><input type="text" id="m-subject" placeholder="e.g. Follow-Up – AT Support"></div>
       <div class="form-group"><label>Use When</label><input type="text" id="m-when" placeholder="e.g. After meeting with a student for the first time"></div>
       <div class="form-group"><label>Script / Body</label><textarea id="m-script" placeholder="Paste or type your full script here…"></textarea></div>
       <div class="form-group"><label>Button Color</label><div class="color-grid" id="colorGrid"></div></div>
-      <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-        <button class="btn-save" onclick="saveScript()">Save Script</button>
-      </div>
+      <div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveScript()">Save Script</button></div>
     </div>
   </div>
 </div>
 
-<!-- IMPORT CONFIRM MODAL -->
+<!-- IMPORT MODAL -->
 <div class="modal-overlay" id="importModal">
   <div class="modal">
-    <div class="modal-header">
-      <h2>⬆ Import Backup</h2>
-      <button class="modal-close" onclick="closeImportModal()">✕</button>
-    </div>
+    <div class="modal-header"><h2>⬆ Import Backup</h2><button class="modal-close" onclick="closeImportModal()">✕</button></div>
     <div class="modal-body">
       <div class="import-summary" id="importSummary"></div>
       <div class="form-group">
         <label>How would you like to import?</label>
         <div class="import-merge-choice">
-          <label class="merge-option">
-            <input type="radio" name="mergeMode" value="merge" checked>
-            <div>
-              <div class="merge-option-label">Merge — keep existing + add imported</div>
-              <div class="merge-option-desc">Best if you're restoring new scripts without losing what you already have. Duplicate script IDs are skipped.</div>
-            </div>
-          </label>
-          <label class="merge-option">
-            <input type="radio" name="mergeMode" value="replace">
-            <div>
-              <div class="merge-option-label">Replace — overwrite everything</div>
-              <div class="merge-option-desc">Replaces all tabs, groups, and scripts with the imported file. Use this to fully restore a backup.</div>
-            </div>
-          </label>
+          <label class="merge-option"><input type="radio" name="mergeMode" value="merge" checked><div><div class="merge-option-label">Merge — keep existing + add imported</div><div class="merge-option-desc">Best for restoring scripts without losing what's already here.</div></div></label>
+          <label class="merge-option"><input type="radio" name="mergeMode" value="replace"><div><div class="merge-option-label">Replace — overwrite everything</div><div class="merge-option-desc">Fully restores a backup, replacing all tabs, groups, and scripts.</div></div></label>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeImportModal()">Cancel</button>
-        <button class="btn-save" onclick="confirmImport()">Import</button>
-      </div>
+      <div class="modal-footer"><button class="btn-cancel" onclick="closeImportModal()">Cancel</button><button class="btn-save" onclick="confirmImport()">Import</button></div>
     </div>
   </div>
 </div>
 
-<!-- TAB MANAGER MODAL -->
+<!-- TAB MANAGER -->
 <div class="modal-overlay" id="tabManagerModal">
   <div class="modal">
-    <div class="modal-header">
-      <h2>⚙ Manage Tabs</h2>
-      <button class="modal-close" onclick="closeTabManager()">✕</button>
-    </div>
+    <div class="modal-header"><h2>⚙ Manage Tabs</h2><button class="modal-close" onclick="closeTabManager()">✕</button></div>
     <div class="modal-body">
       <div class="tab-manager-list" id="tabManagerList"></div>
       <button class="add-tab-row-btn" onclick="addTabRow()">＋ Add Tab</button>
-      <p class="tab-manager-hint">💡 Rename tabs to fit your workflow. Scripts stay attached even when you rename a tab.</p>
-      <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeTabManager()">Cancel</button>
-        <button class="btn-save" onclick="saveTabManager()">Save Tabs</button>
-      </div>
+      <p class="tab-manager-hint">💡 Rename tabs to fit your workflow. Scripts stay attached when you rename a tab.</p>
+      <div class="modal-footer"><button class="btn-cancel" onclick="closeTabManager()">Cancel</button><button class="btn-save" onclick="saveTabManager()">Save Tabs</button></div>
     </div>
   </div>
 </div>
 
 <script>
-// ─────────────────────────────────────────────────────
-// STORAGE
-// ─────────────────────────────────────────────────────
-const STORE = 'oars_sb_';
-const jget = k => { try { return JSON.parse(localStorage.getItem(STORE+k)); } catch{ return null; } };
-const jset = (k,v) => localStorage.setItem(STORE+k, JSON.stringify(v));
-const sget = k => localStorage.getItem(STORE+k);
-const sset = (k,v) => localStorage.setItem(STORE+k, v);
-const sdel = k => localStorage.removeItem(STORE+k);
+// ── STORAGE ──────────────────────────────────────────
+const STORE='joel_sb_';
+const jget=k=>{try{return JSON.parse(localStorage.getItem(STORE+k));}catch{return null;}};
+const jset=(k,v)=>localStorage.setItem(STORE+k,JSON.stringify(v));
+const sget=k=>localStorage.getItem(STORE+k);
+const sset=(k,v)=>localStorage.setItem(STORE+k,v);
+const sdel=k=>localStorage.removeItem(STORE+k);
 
-// ─────────────────────────────────────────────────────
-// DATA
-// ─────────────────────────────────────────────────────
-const DEFAULT_TABS = [
-  { id:'tab-1', label:'📋 Tab 1' },
-  { id:'tab-2', label:'✉️ Tab 2' },
-  { id:'tab-3', label:'📁 Tab 3' },
+// ── SEED DATA ─────────────────────────────────────────
+// Pre-loaded from TEMPLATES_TO_CASE_NOTE_-Back_up.docx
+// Only injected on first run (when localStorage is empty)
+const SEED_TABS=[
+  {id:'tab-cn',label:'📋 Case Notes'},
+  {id:'tab-at',label:'🖥️ AT Emails'},
+  {id:'tab-te',label:'📝 Testing Emails'},
+  {id:'tab-gen',label:'📬 General Emails'},
 ];
 
-let TABS    = jget('tabs')    || DEFAULT_TABS;
-let GROUPS  = jget('groups')  || [];
-let SCRIPTS = jget('scripts') || [];
+const SEED_GROUPS=[
+  // Case Notes
+  {id:'grp-cn-session',tabId:'tab-cn',label:'Session Notes'},
+  {id:'grp-cn-admin',tabId:'tab-cn',label:'Administration'},
+  // AT Emails
+  {id:'grp-at-altfmt',tabId:'tab-at',label:'Alt Format'},
+  {id:'grp-at-tech',tabId:'tab-at',label:'Assistive Technology'},
+  {id:'grp-at-appt',tabId:'tab-at',label:'Appointments'},
+  // Testing
+  {id:'grp-te-sched',tabId:'tab-te',label:'Scheduling'},
+  {id:'grp-te-faculty',tabId:'tab-te',label:'Faculty'},
+  {id:'grp-te-student',tabId:'tab-te',label:'Student Reminders'},
+  // General
+  {id:'grp-gen-housing',tabId:'tab-gen',label:'Housing'},
+  {id:'grp-gen-esa',tabId:'tab-gen',label:'ESA'},
+  {id:'grp-gen-academic',tabId:'tab-gen',label:'Academic'},
+  {id:'grp-gen-parents',tabId:'tab-gen',label:'Parents'},
+  {id:'grp-gen-misc',tabId:'tab-gen',label:'Misc'},
+];
 
-let activeTab     = TABS[0]?.id || 'tab-1';
-let selectedColor = 'c1';
-let pendingImport = null; // holds parsed JSON while user chooses merge mode
+const SEED_SCRIPTS=[
+  // ── CASE NOTES ─────────────────────────────────────
+  {id:'cn1',tab:'tab-cn',groupId:'grp-cn-session',color:'c3',type:'note',icon:'📝',title:'AT Support – Alt Format & Genio',when:'After a full AT session covering alt format, NaturalReader, and Genio',subject:'Alternate Text Format and Genio Support',script:`Date: [DATE]
+Subject: Alternate Text Format and Genio Support
 
-const COLORS = [
+Peddle met with the student to provide guidance on submitting an alternate text format request. Peddle demonstrated how to access Accommodate, locate the alternate text request form, complete the required fields, upload proof of purchase, and submit the request. Peddle then explained the next steps in the process, including how to retrieve the accessible file from SharePoint, save it to a desktop folder, and access the content using NaturalReader.
+
+After the student downloaded the NaturalReader app, Peddle assisted with account setup, selecting from the available free voice options, and uploading a PDF for text-to-speech functionality. Peddle also highlighted that once books are uploaded, they are saved to the NaturalReader library for future reference. In addition, Peddle demonstrated new features within the app, such as repeating sentences and enabling pauses after each sentence or paragraph to support improved comprehension.
+
+Finally, Peddle introduced the Genio note-taking application and demonstrated its core features, including recording lectures, titling recordings, generating AI-based transcriptions, and organizing notes into collections. A practice recording was completed during the session. Peddle also guided the student through copying a Genio transcript into a Word document and using ChatGPT to generate a structured summary with clear headings and embedded instructor dialogue. Peddle emphasized the importance of maintaining organized class materials in desktop folders and encouraged the student to use Genio regularly on either a desktop or mobile device.
+
+The student expressed appreciation for Peddle's support throughout the session. Peddle offered to help the student at any point that they needed a refresher or have additional questions.`},
+
+  {id:'cn2',tab:'tab-cn',groupId:'grp-cn-session',color:'c4',type:'note',icon:'📝',title:'Genio Session – In Person',when:'After meeting with a student in person to introduce or demo Genio',subject:'Genio Note-Taking Software – Assistive Technology Support Session',script:`Date: [DATE]
+Subject: Genio Note-Taking Software – Assistive Technology Support Session
+
+Peddle met with the student to review assistive technology accommodations, focusing specifically on note-taking support. During the session, Peddle introduced the Genio note-taking software and demonstrated its key features, including how to record lectures, title recordings, use AI Quiz Review, and organize notes into collections. A sample collection was created, and a practice recording was completed to showcase the software's functionality. Peddle also demonstrated how to upload slides as well as how to copy the transcript into a Word doc. Peddle emphasized the importance of communicating with instructor if AI is utilized to summarize the notes.
+
+Additionally, Peddle discussed the importance of microphone sensitivity for optimal audio capture and guided the student through the steps to increase microphone input on their laptop.
+
+The meeting concluded with Peddle inviting the student to reach out with any further questions and encouraging them to schedule a follow-up appointment as needed.`},
+
+  {id:'cn3',tab:'tab-cn',groupId:'grp-cn-session',color:'c4',type:'note',icon:'📝',title:'Genio Session – Virtual',when:'After a virtual meeting with a student to introduce or demo Genio',subject:'Genio Note-Taking Software – Assistive Technology Support Session',script:`Date: [DATE]
+Subject: Genio Note-Taking Software – Assistive Technology Support Session
+
+Peddle met virtually with the student to review assistive technology accommodations, focusing specifically on note-taking support. During the session, Peddle introduced the Genio note-taking software and demonstrated its key features, including how to record lectures, title recordings, use AI Quiz Review, and organize notes into collections. A sample collection was created, and a practice recording was completed to showcase the software's functionality.
+
+Additionally, Peddle discussed the importance of microphone sensitivity for optimal audio capture and guided the student through the steps to increase microphone input on their laptop.
+
+The meeting concluded with Peddle inviting the student to reach out with any further questions and encouraging them to schedule a follow-up appointment as needed.`},
+
+  {id:'cn4',tab:'tab-cn',groupId:'grp-cn-session',color:'c7',type:'note',icon:'📝',title:'NaturalReader Session',when:'After meeting with a student to support NaturalReader',subject:'Assistive Technology – Natural Reader',script:`Date: [DATE]
+Subject: Assistive Technology – Natural Reader
+
+Peddle met with the student to provide support with Natural Reader. During the meeting, Peddle demonstrated how to log in to the student's account to access saved text in the library, select from available free voices, and upload PDF files.
+
+Peddle also reviewed the student's approved accommodation for alternate formats and discussed how to effectively utilize PDFs within Natural Reader to support this accommodation. Additionally, Peddle assisted the student in organizing files and folders on their desktop for easier access and improved workflow.`},
+
+  {id:'cn5',tab:'tab-cn',groupId:'grp-cn-session',color:'c2',type:'note',icon:'📝',title:'Glean Refresher Session',when:'After a student requests a Glean refresher',subject:'Glean',script:`Date: [DATE]
+Subject: Glean
+
+Peddle met with student to discuss Glean. Student stated that they needed a refresher on how to use Glean. Peddle demonstrated some of the features, including recording, making a title for each recording, utilizing AI transcription, and the purpose of collections. A sample collection was created, and a sample recording was made for practice purposes.
+
+Finally, Peddle shared how to copy the transcript, paste/save into a Word document and upload in ChatGPT. ChatGPT was utilized to summarize the transcriptions into headings and bullets with embedded instructor dialogue. Peddle provided an example of a summarized transcription produced by ChatGPT. Peddle also stated that he would email a video that reviews how to utilize ChatGPT and the Glean transcriptions.`},
+
+  {id:'cn6',tab:'tab-cn',groupId:'grp-cn-session',color:'c8',type:'note',icon:'📝',title:'Alt Text Format Session',when:'After meeting with a student to walk through Alt Text Format request process',subject:'Alt Text Format Directions & Natural Reader',script:`Date: [DATE]
+Subject: Alt Text Format Directions & Natural Reader
+
+Peddle met with the student to provide guidance on submitting an Alternate Text Format request. During the meeting, Peddle demonstrated how to access the Alt Text Format Request section within the student's Accommodate portal. The student was shown how to complete the request form, upload proof of purchase, and submit the request.
+
+Peddle also reviewed the next steps of the process, including accessing converted files via SharePoint, downloading documents into a desktop folder, and organizing files for easy access.
+
+In addition, Peddle introduced the student to Natural Reader. Peddle guided the student through account creation, selecting from the available free voice options, and uploading a PDF to enable text-to-speech functionality. Peddle emphasized that uploaded books are stored in the Natural Reader library for ongoing access. Peddle also demonstrated newer features in the app, such as the ability to repeat sentences and insert pauses after sentences or paragraphs to support comprehension.`},
+
+  {id:'cn7',tab:'tab-cn',groupId:'grp-cn-session',color:'c6',type:'note',icon:'📝',title:'Missed Appointment',when:'Student missed their scheduled appointment',subject:'Missed Appointment',script:`Date: [DATE]
+Subject: Missed Appointment
+
+Student missed the scheduled appointment with Peddle, to discuss [...]. Student was sent a "missed meeting letter" generated through Accommodate.`},
+
+  {id:'cn8',tab:'tab-cn',groupId:'grp-cn-admin',color:'c3',type:'note',icon:'📋',title:'Processed Registration',when:'After processing a new student registration in Accommodate',subject:'Processed Accommodate Application/Registration',script:`Date: [DATE]
+Subject: Processed Accommodate Application/Registration
+
+Peddle processed the student registration. Assigned the student to [add specialist last name] and sent the student a letter to schedule a meeting.`},
+
+  // ── AT EMAILS ──────────────────────────────────────
+  {id:'at1',tab:'tab-at',groupId:'grp-at-altfmt',color:'c2',type:'email',icon:'✉️',title:'Digital Book – No PDF Needed',when:'Student bought a digital book but is requesting a PDF alt format',subject:'Alternate Format Request Follow-Up',script:`Hi [Student's Name],
+
+I was reviewing your alternate format request and noticed that you've purchased a digital copy of your textbook. Since you'll be receiving the digital version from the publisher, a separate request for a PDF is not necessary.
+
+If you have any questions about accessing or using the digital copy from the publisher, feel free to reach out – I'm happy to help.
+
+Have a great day!
+Joel`},
+
+  {id:'at2',tab:'tab-at',groupId:'grp-at-altfmt',color:'c4',type:'email',icon:'❓',title:'Confused on Alt Format Next Steps',when:"Student doesn't know what to do next after getting their alt format reminder",subject:'Re: Reminder to Submit Alternative Format Requests',script:`Hi [Student],
+
+The first thing I recommend is watching the video about sending your Letter of Notification, which you'll find on your Accommodate Portal Home Page.
+
+If you've already completed that step, your Accessibility Specialist will review the letters and send them to your instructors. Once that's done, the Alternate Format tab will appear, and you'll be able to submit your alternate format request from there.
+
+Feel free to call me if you have any questions – I'm happy to help!
+
+Best,
+Joel`},
+
+  {id:'at3',tab:'tab-at',groupId:'grp-at-altfmt',color:'c8',type:'email',icon:'☀️',title:'Alt Format – Summer or During Year',when:'Student requesting alt format during summer or the academic year',subject:'Alternate Format Textbook Request',script:`Hi [Student Name],
+
+I hope you're doing well. I was forwarded your request for an alternate format of a textbook for your summer school class. Before we can move forward, you'll need to send your instructor notification and then submit your alternate format request through Accommodate.
+
+I've sent you two separate emails that walk you through this process step by step. I hope this helps, but if you have any questions at all, please feel free to reach out.
+
+Have a great day,
+Joel`},
+
+  {id:'at4',tab:'tab-at',groupId:'grp-at-altfmt',color:'c1',type:'email',icon:'📤',title:'Upload Proof of Purchase',when:'Student has not uploaded proof of purchase in Accommodate',subject:'Reminder Notification to Upload Alternate Format in Accommodate',script:`Hi [First Name],
+
+I hope this email finds you well. I have enclosed directions on how to complete an Alternate Format Request and upload proof of purchase in Accommodate. If you have any questions, please let me know.
+
+Have a great day.
+Joel
+
+Step 1: Log in to Accommodate and click on the tab on the left that says Accommodations.
+
+Step 2: At the bottom of the dropdown you will see Alternative Format. Click on Alternative Format then click on Student Entered (beside Official Text).
+
+Step 3: Click on Upload Document for Alternative Format (Purple Box). Fill out all the items and then click on Submit. Make sure the ISBN# is correct and your proof of purchase includes receipt of payment and what type of alternate format you are requesting (pdf, etc.)
+
+****Follow these steps for each book request.`},
+
+  {id:'at5',tab:'tab-at',groupId:'grp-at-altfmt',color:'c7',type:'email',icon:'❗',title:'Additional Proof of Purchase Needed',when:"Proof of purchase in Accommodate doesn't have enough detail",subject:'Additional Proof of Purchase Needed',script:`Hi [Student Name],
+
+I hope you're doing well.
+
+The proof of purchase in Accommodate does not provide enough information. Could you please upload a document that includes the order number, order date, and other relevant details?
+
+Thank you for your help with this! I'll complete the processing as soon as I receive the updated proof of purchase in Accommodate.
+
+I appreciate your time, and I apologize for any inconvenience.
+
+Best,
+Joel`},
+
+  {id:'at6',tab:'tab-at',groupId:'grp-at-altfmt',color:'c3',type:'email',icon:'✅',title:'Alt Format Complete – Student',when:'Alt format request is complete and shared with student via SharePoint',subject:'Alt Formats Completed and Shared via SharePoint',script:`Hi [Recipient's First Name],
+
+I hope this message finds you well! I'm pleased to let you know that your Alternate Format request (PDF & Word) has been completed. The files have been shared with you via SharePoint.
+
+If you have any questions or need help accessing the materials, please don't hesitate to reach out.
+
+Have an amazing day!
+
+Best regards,
+Joel`},
+
+  {id:'at7',tab:'tab-at',groupId:'grp-at-altfmt',color:'c9',type:'email',icon:'✅',title:'Alt Format Complete – Professor',when:'Alt format PDF updates complete – notifying the requesting professor',subject:'Alternate Formats Complete',script:`Hi [First Name],
+
+I hope this email finds you well. I'm pleased to inform you that the accessibility updates for the [ENTER CLASS] PDFs you requested have been completed. The updated PDFs are now fully accessible. If you have any questions, please do not hesitate to contact me.
+
+Have an amazing day!
+Joel`},
+
+  {id:'at8',tab:'tab-at',groupId:'grp-at-altfmt',color:'c5',type:'email',icon:'🔧',title:'PDF Corrected for Natural Reader',when:'Student needed a PDF fixed so Natural Reader can process it',subject:'PDF Corrected',script:`Hi [Student Name],
+
+I've made the necessary modifications to ensure that Natural Reader can easily process the PDFs. I've attached the corrected PDFs for you.
+
+If you have any additional requests, as always, feel free to reach out.
+
+Wishing you a great day!
+
+Best,
+Joel`},
+
+  {id:'at9',tab:'tab-at',groupId:'grp-at-altfmt',color:'c3',type:'email',icon:'✅',title:'Transcriptions Complete – SharePoint',when:'Transcriptions are finished and shared with the student',subject:'Transcription and Shared via SharePoint',script:`Hi [Recipient's First Name],
+
+I hope this email finds you well. I'm pleased to inform you that the updated transcriptions have been completed. I have shared those items with you through SharePoint. If you have any questions or need assistance accessing the files, please do not hesitate to contact me.
+
+Have an amazing day!
+
+Best regards,
+Joel`},
+
+  {id:'at10',tab:'tab-at',groupId:'grp-at-tech',color:'c3',type:'email',icon:'🎤',title:'Glean Account Reactivated',when:'Reactivating a student Glean account for the semester',subject:'Glean Account Reactivated',script:`Hi [First Name],
+
+I hope this email finds you well. I'm pleased to inform you that your Glean account has been reinstated for the [Fall/Spring Semester]. If you have any questions, please do not hesitate to contact me.
+
+Have the best day!
+Joel`},
+
+  {id:'at11',tab:'tab-at',groupId:'grp-at-tech',color:'c4',type:'email',icon:'🎤',title:'Genio Account Reinstated – No Appt Needed',when:'Student booked appointment just to reinstate Genio – handled without meeting',subject:'Genio Account Reinstated',script:`Hi [Student],
+
+I hope this email finds you well. I had a schedule conflict with the proposed time for the appointment you had requested through Accommodate. Based on the subject of the appointment I went ahead and reinstated your Genio account for the Fall/Spring Semester. You should now have full access.
+
+If you have any questions or need a refresher, please do not hesitate to contact me or schedule an appointment.
+
+Have the best day!
+Joel`},
+
+  {id:'at12',tab:'tab-at',groupId:'grp-at-tech',color:'c2',type:'email',icon:'🎬',title:'Genio & Transcription Video Resources',when:'Sending Genio and transcript video resources to a student after a session',subject:'Genio and Transcripts Video Resources',script:`Hi [Student Name],
+
+I hope you're doing well. It was great meeting you today. I really appreciated your attentiveness and focus during our discussion.
+
+I've attached two videos for you to reference if you have any questions about Genio or Transcripts. Staying organized with your class materials can make studying much easier. Try using your lecture recordings to go over important points, fill in any gaps in your notes, and break big topics into smaller, manageable pieces. Small, steady habits, like reviewing a little each day, can make a big difference!
+
+Let me know if I can help with anything else.
+
+Have the best day,
+Joel`},
+
+  {id:'at13',tab:'tab-at',groupId:'grp-at-appt',color:'c8',type:'email',icon:'📅',title:'How to Schedule in Accommodate',when:'Student asks how to book an appointment with Joel in Accommodate',subject:'How to Make an Appointment in Accommodate',script:`Hi [Student Name],
+
+Glad to help you set up your appointment. So, in Accommodate click on the following:
+
+Click on Appointments
+Click on Request New Appointment
+Click (type) choose Assistive Technology (30 min) – click done
+Leave date range as is and time range as is.
+Click Joel Peddle
+Click Check Availability
+Dates will populate. Choose which day works best for you and I will be notified.
+
+Hope this helps. Feel free to reach out if you have any further questions.
+
+Have the best day!
+Joel`},
+
+  {id:'at14',tab:'tab-at',groupId:'grp-at-appt',color:'c5',type:'email',icon:'🔁',title:'Reschedule – Conflict',when:'Student set a virtual appointment but there is a conflict',subject:'Request to Reschedule Meeting',script:`Hi [Recipient's Name],
+
+I wanted to let you know that I have a scheduling conflict with our upcoming meeting currently set for [original date and time]. I'm available [alternative date and time options], and I'd be happy to adjust the meeting to a time that works best for you.
+
+Please let me know your availability, and I'll go ahead and update the meeting in Accommodate once we confirm.
+
+Thanks for your understanding!
+
+Best regards,
+Joel`},
+
+  {id:'at15',tab:'tab-at',groupId:'grp-at-appt',color:'c7',type:'email',icon:'🔔',title:'Virtual Appointment Reminder – Teams',when:'Sending a reminder before a scheduled virtual Teams meeting',subject:'Reminder Virtual Appointment via Teams Link',script:`Hi [First Name],
+
+I hope this email finds you well. This is a friendly reminder that you have a scheduled virtual meeting for a quick tutorial on Glean. You should have received the Teams link in your email inbox.
+
+If you have any questions, feel free to reach out. Otherwise, I'll see you today at [Time] via Teams.
+
+Have a great day!
+Joel`},
+
+  {id:'at16',tab:'tab-at',groupId:'grp-at-appt',color:'c6',type:'email',icon:'🏠',title:'Wrong Appointment Type – Housing',when:"Student scheduled AT appointment but it's actually a housing accommodation request",subject:'Appointment Type Clarification',script:`Hi [Student Name],
+
+I hope you're doing well! I noticed that you scheduled an appointment with me today at [date, time] to discuss a housing accommodation. I wanted to clarify whether you're seeking assistance with Assistive Technology or Housing Accommodations.
+
+If your request is related to housing, I recommend scheduling an appointment with an Accessibility Specialist instead. You can begin the process by visiting the Office of Accessibility Resources and Services, clicking on "New to OARS," and completing the necessary documentation.
+
+If you have any questions about registering, feel free to reach out to Destiny Johnson at (336) 841-9026. She'll be happy to assist you and answer any questions.
+
+Let me know if you have any questions.
+
+Have the Best day,
+Joel`},
+
+  // ── TESTING EMAILS ─────────────────────────────────
+  {id:'te1',tab:'tab-te',groupId:'grp-te-sched',color:'c1',type:'email',icon:'📅',title:'3-Day Advance Notice Reminder',when:'Student trying to book without 3 business days notice',subject:'Testing Room Booking',script:`Hi [Student Name],
+
+I hope this message finds you well! I wanted to kindly remind you that all exams and quizzes taken in the OARS Testing Center must be scheduled at least three business days in advance. This helps ensure we can provide the necessary accommodations and support for your assessment.
+
+If you have any questions, feel free to contact Meredith Cummings, our Testing Coordinator, about the scheduling process.
+
+Thank you for your understanding and cooperation!
+
+Kind regards,
+Joel`},
+
+  {id:'te2',tab:'tab-te',groupId:'grp-te-sched',color:'c5',type:'email',icon:'🧪',title:'Past Window – Two Options',when:'Student missed the 3-day window – give them two alternatives',subject:'Test Scheduling – Options',script:`Hi,
+
+To book a test room with OARS, you will need to schedule a test room 3 days in advance. That is more than likely the reason why you are unable to schedule. So, you have two options:
+
+1. Your instructor will need to proctor your exam and provide you with extra time and a distraction reduced environment (if they are able to).
+
+2. Work with your instructor to coordinate a different day and time to take your test.
+
+I am attaching the testing timeline to this email to show you when is the proper time to submit your test. Some students submit their finals and mid-terms ahead of time, so please get those in for sure! I also sent you step by step instructions in a separate email on how to schedule your exam in Accommodate.
+
+If for ANY reason you are having issues with scheduling, please email Meredith, the OARS testing coordinator directly. Her contact information is mcummin1@highpoint.edu
+
+If you have any questions, please let me know.
+
+Thank you,
+Joel`},
+
+  {id:'te3',tab:'tab-te',groupId:'grp-te-sched',color:'c4',type:'email',icon:'📝',title:'How to Schedule via Accommodate',when:'Student emailed asking how to schedule their test with OARS',subject:'Scheduling Your Test Through Accommodate',script:`Hello,
+
+To properly request to schedule your test with OARS you need to submit it via Accommodate. I have sent you instructions on how to do that. Please get this submission to us by this Friday at 5pm in order to test in our testing center. Please note that if this test is on a different date than your exam, your instructor must approve it. You may want to coordinate to make sure that this is okay.
+
+When you submit your request, just be sure to select the day and leave the time frame. Then select check availability at the bottom. On the right side of the screen there will be different time slots and rooms to select. I am adding Meredith Cummings, the OARS Testing Coordinator, to advise if you have any trouble with scheduling. If you have any questions, please let Meredith know.
+
+Thank you,
+Joel`},
+
+  {id:'te4',tab:'tab-te',groupId:'grp-te-sched',color:'c7',type:'email',icon:'🚫',title:'Finals/Midterms – Too Late',when:'Student missed the finals/midterm exam submission deadline',subject:'Re: Exam Scheduling Request',script:`Dear [Student's Name],
+
+Thank you for reaching out. Unfortunately, we are unable to schedule your exam in OARS due to the timeliness of your request. The deadline to submit exam requests was Wednesday, April 17, 2025, at 5:00 PM.
+
+We understand that this may be disappointing, and we encourage you to reach out to your instructor to discuss alternative arrangements. Please feel free to contact our office if you have any questions or if we can offer further support.
+
+Best regards,
+Joel`},
+
+  {id:'te5',tab:'tab-te',groupId:'grp-te-student',color:'c3',type:'email',icon:'🏛️',title:'4th Floor – Finals/Midterms',when:'Student is scheduled for a mid-term or final on the 4th floor ONLY',subject:'[FINAL/MIDTERM EXAM] REPORT TO 4TH FLOOR',script:`Dear [Student's Name],
+
+This is a reminder that you are scheduled to take a test in the OARS Testing Center tomorrow, [DATE].
+
+Please report to the 4th floor of Smith Library and check in with Destiny Johnson at the end of the hall. She will direct you to your testing room.
+
+Wishing you a restful evening and the best of luck on your exam!
+
+Best,
+Joel`},
+
+  {id:'te6',tab:'tab-te',groupId:'grp-te-faculty',color:'c6',type:'email',icon:'👨‍🏫',title:'Faculty – Final Exam Reminder',when:'Faculty has NOT uploaded exam material – final reminder before cancellation',subject:'Exam Information Needed – LAST REMINDER – OARS TESTING CENTER',script:`This is your FINAL REMINDER to complete the necessary Exam Information Form. One or more of your students have requested to take their exam in the OARS Testing Center, but OARS requires additional information from you in order to proctor the exam.
+
+If the steps outlined below are not completed within 24 business hours prior to the scheduled exam, the OARS Testing Center will cancel the exam, the student will be instructed to return to class, and you will be expected to provide all of the testing accommodations for the student(s). If you have already completed the steps below, please contact Meredith Cummings, the OARS Testing Coordinator, to confirm receipt as there may be technical issues with the system that need to be addressed.
+
+HOW TO COMPLETE THE EXAM INFORMATION FORM IN ACCOMMODATE
+This step must be completed no later than 24 business hours prior to the student's scheduled exam.
+
+1. Log into Accommodate: https://highpoint-accommodate.symplicity.com/faculty
+2. Select Courses on the left-hand side of the screen.
+3. Select the appropriate course.
+4. Select Exam on the upper right-hand corner of the section.
+5. Select the purple box with the text Add New Exam.
+
+This is a time-sensitive matter, and it is imperative that you take immediate action to ensure your students receive their approved accommodations. If you have any questions or require assistance, please do not hesitate to contact Meredith Cummings, OARS Testing Coordinator. Thank you for your prompt attention to this matter!
+
+Thank you,
+Joel`},
+
+  // ── GENERAL EMAILS ─────────────────────────────────
+  {id:'gen1',tab:'tab-gen',groupId:'grp-gen-housing',color:'c8',type:'email',icon:'🏠',title:'Housing Declined – Student Response',when:'Student declined ADA housing offer',subject:'ADA Housing Offer – OARS Follow-Up',script:`Hello,
+
+I received the email below from housing regarding your decision to decline your ADA housing offer for the upcoming 2025-2026 academic year. Please note that if you would like to use your ADA housing accommodations for the 2026-2027 academic year, you must contact OARS by Feb 13, 2026, to be placed on the ADA housing list.
+
+If you do not contact OARS by this date, then you will be placed in the traditional housing portal for housing selection. If you choose to implement your housing accommodations after the February 14th, 2026 deadline, you'll be prioritized for housing that meets your disability-related needs, but the University cannot guarantee an ADA placement.
+
+Should you have any questions, please let me or [specialist first name] know.
+
+Thanks,
+Joel`},
+
+  {id:'gen2',tab:'tab-gen',groupId:'grp-gen-housing',color:'c2',type:'email',icon:'🏠',title:'Housing – No Response / Delayed',when:'Student did not respond to ADA housing offer and it was marked declined',subject:'ADA Housing Offer – No Response on File',script:`Hi [Student Name],
+
+I received the email below from housing regarding the ADA housing offer for the 2025-2026 school year. Because of no response, housing has noted that this was a declined offer.
+
+Please note that if you would like to use your ADA housing accommodations for the 2025-2026 school year, you must contact OARS directly via email. If you choose to implement your ADA housing accommodation during the 2025-2026 school year, you'll be placed on a prioritized waitlist for housing that meets your disability-related needs.
+
+Should you have any questions, please let me or [specialist first name] know.
+
+Joel`},
+
+  {id:'gen3',tab:'tab-gen',groupId:'grp-gen-housing',color:'c4',type:'email',icon:'🏠',title:'Housing – Suitemate Request Clarification',when:'Student requesting a specific number of suitemates through OARS',subject:'Housing Accommodation – Suitemate Clarification',script:`Hello,
+
+I want to clarify that OARS does not have control over the number of suitemates assigned to you or who can be assigned to live with you. Our role is to determine if a student qualifies for ADA housing accommodations, such as the option to have or not have a roommate or suitemate, and then forward that approval to the Housing Office. The Housing Office is responsible for assigning housing locations and determining the number of suitemates based on availability.
+
+For additional assistance, you may wish to contact your community director or the Housing Department directly.
+
+If you'd like to move forward with requesting housing accommodation, with the understanding that we cannot guarantee a specific roommate or suitemate arrangement, please let me know, and I'll be happy to provide you with the necessary details.
+
+Thank you,
+Joel`},
+
+  {id:'gen4',tab:'tab-gen',groupId:'grp-gen-housing',color:'c3',type:'email',icon:'🏠',title:'Incoming Freshman – Housing Accommodations',when:'Incoming freshman requesting housing accommodations (with deadline)',subject:'Housing Accommodation Request – Process Overview',script:`Hello,
+
+Thanks for reaching out and submitting your housing accommodations request! I will be more than happy to guide you through the process. Please refer to the steps below to get started:
+
+Register for OARS: please register by using this link: https://highpoint-accommodate.symplicity.com/public_accommodation/
+
+Documentation: I've attached the housing forms, which must be completed by a licensed professional who is more familiar with your needs. Any additional documentation can be uploaded at the time of registering or emailed to OARS (Oars@highpoint.edu).
+
+Intake Meeting: After completing registration and submitting your documentation, you will need to attend an intake meeting with an Accessibility Specialist. You will be emailed with instructions on how to schedule a meeting to your HPU email, so please be sure to check for this! This meeting, which can be held virtually or in person, will provide an opportunity for you and your assigned specialist to discuss your request.
+
+Our process for any request takes 3-5 business days. This process cannot be expedited as it will be reviewed in the order in which it was received. If approved, you will be assigned housing based on your needs in available ADA-compliant housing. Please note that our office does not determine specific housing placements.
+
+IMPORTANT: If your accommodation is approved before the deadline (February 15th for upperclassmen or April 15th for incoming students), you'll have equal access to accessible housing, though it doesn't guarantee a specific residence hall or room. After the deadline, you'll be prioritized for housing that meets your disability-related needs.
+
+If you have any questions, feel free to reach out.
+
+Thank you!
+Joel`},
+
+  {id:'gen5',tab:'tab-gen',groupId:'grp-gen-esa',color:'c5',type:'email',icon:'🐾',title:'ESA Request – Process Overview',when:'Student inquiring about requesting an ESA through OARS',subject:'ESA Accommodation Request – Process Overview',script:`Hello,
+
+Thanks for reaching out. I'm happy to explain the process for requesting accommodation with our office for your ESA.
+
+Register for OARS: please register by using this link: https://highpoint-accommodate.symplicity.com/public_accommodation/
+
+Intake Meeting: After completing registration, you will need to attend an intake meeting with an Accessibility Specialist. You will be emailed with instructions on how to schedule a meeting to your HPU email, so please be sure to check for this! This meeting, which can be held virtually or in person, will provide an opportunity for you and your assigned specialist to discuss your request. During your meeting, you will receive the OARS ESA form.
+
+Documentation (Can be uploaded to your Accommodate account or sent to OARS@highpoint.edu):
+- The ESA form must be completed by a licensed professional who is familiar with your needs. This provider must not be related to you.
+- Up to date vaccine records or wellness exam (including a rabies vaccine) – If your ESA is too young for this vaccine, an official ESA approval will not be possible at this time.
+- A photo of your ESA.
+
+Our process for any request takes 3-5 business days after all documentation is received. This process cannot be expedited as it will be reviewed in the order in which it was received.
+
+Please note that your ESA is not permitted to be on campus unless it has been approved by our office, and you have received an official letter from us. If it is found that your ESA is on campus, it will be considered an unauthorized animal, and you will be subject to ESA violation sanctions.
+
+Thank you,
+Joel`},
+
+  {id:'gen6',tab:'tab-gen',groupId:'grp-gen-esa',color:'ca',type:'email',icon:'💉',title:'ESA – Vaccination Update Needed',when:'ESA rabies vaccination has expired and needs to be updated',subject:'ESA Documentation Reminder – Vaccination Update Needed',script:`Hi!
+
+This is just a reminder email regarding the documentation for your ESA. The rabies vaccination does expire on ___, so we will need the up-to-date vaccinations. If your ESA is no longer on campus, please respond to this email letting me know so I can make a note.
+
+Please know that you need this if your ESA is on campus. If we do not receive the documentation, your ESA will no longer be permitted on campus until the information has been updated.
+
+If you have any questions, please let me know.
+
+Thank you,
+Joel`},
+
+  {id:'gen7',tab:'tab-gen',groupId:'grp-gen-academic',color:'c4',type:'email',icon:'📚',title:'Academic Accommodations – No Docs',when:'Student requesting academic accommodations but has not submitted documentation',subject:'Academic Accommodation Request – Next Steps',script:`Hello,
+
+I hope you're doing well! I'd be happy to explain our process in requesting Academic Accommodations.
+
+Please refer to the steps below:
+
+Register for OARS: please register by using this link: https://highpoint-accommodate.symplicity.com/public_accommodation/
+
+Documentation: When you register, upload your documentation. Our office requires a 504 plan, IEP, or Neuropsychological evaluation. If you do not have either of these documents, OARS typically asks for detailed information about how your condition affects your daily activities, especially your schoolwork and access to campus. This documentation should come from a licensed professional, written on official letterhead, and include their signature and the date. If you forget to upload your documentation to the portal, you can email it over to OARS (oars@highpoint.edu), and it will be uploaded to your portal.
+
+Intake Meeting: After completing registration and submitting your documentation, you will need to attend an intake meeting with an Accessibility Specialist. You will be emailed instructions on how to schedule a meeting to your HPU email, so please be sure to check for this!
+
+Our process for any request takes 3-5 business days. This process cannot be expedited as it will be reviewed in the order in which it was received.
+
+If you have any questions, please let me know.
+
+Thank you,
+Joel`},
+
+  {id:'gen8',tab:'tab-gen',groupId:'grp-gen-academic',color:'c1',type:'email',icon:'🤒',title:'Student Sick – OARS Can\'t Excuse',when:'Student is sick and asking OARS what to do about absences',subject:'Question Regarding Absence from Class',script:`Hi [Student Name],
+
+I am sorry you are not feeling well. You will need to be the one to inform your instructors of your absences and coordinate missed work or test. Our office only handles disability related concerns and cannot excuse students' absences or provide temporary remote access.
+
+I apologize for the inconvenience. I hope you feel better soon.
+
+Best,
+Joel`},
+
+  {id:'gen9',tab:'tab-gen',groupId:'grp-gen-academic',color:'c3',type:'email',icon:'📧',title:'Student Notifying Instructors – Directions',when:'Student needs to know how to notify instructors of accommodations',subject:'Sending Your Accommodation Notification to Instructors',script:`Hello,
+
+At the start of each semester, students are encouraged to inform their instructors if they wish to use their accommodations. I've sent you instructions in a separate email on how to do this. Once you've submitted your request, you'll receive a confirmation email once your specialist, [specialist name], has successfully submitted it. After that, it will be your responsibility to communicate with your instructors to ensure they've signed the letter confirming your accommodations. If you encounter any issues, please let me or your specialist know. [Specialist name] has been copied on this email as well.
+
+Thank you,
+Joel`},
+
+  {id:'gen10',tab:'tab-gen',groupId:'grp-gen-parents',color:'c6',type:'email',icon:'👨‍👩‍👧',title:'Parent Email – Self-Advocacy Policy',when:'Parent contacts OARS directly about their student',subject:'OARS Communication Policy – Parent Inquiry',script:`Dear [Parent Name],
+
+Thank you for contacting the Office of Accessibility Resources and Services (OARS). We understand that these matters are very important to you, and we appreciate the support you are providing as your student navigates their transition to university life.
+
+In an effort to more closely align with the federal laws that govern our office (including the Americans with Disabilities Act and Section 504 of the Rehabilitation Act of 1973), we have made changes to our policies regarding communication with parents. While we value and respect your involvement, OARS works directly with students to support the development of their self-advocacy skills, which are essential for success both in college and beyond. Parental involvement should primarily take the form of advising and encouraging the student from the sidelines.
+
+Please encourage [student name] to reach out if they have any questions. They are welcome to reach out to OARS directly by phone at 336-841-9026 or by emailing OARS at oars@highpoint.edu or me at tpeddle@highpoint.edu.
+
+Thank you for supporting your student's efforts in gaining critical life skills during this time of transition.
+
+Warm regards,
+Joel`},
+
+  {id:'gen11',tab:'tab-gen',groupId:'grp-gen-misc',color:'c8',type:'email',icon:'🚶',title:'Walk-In Hours Info',when:'Student or family asking about walk-in availability',subject:'Walk-In Hours – OARS',script:`Hello,
+
+I would like to offer to stop by during the walk-in hours to help answer any general questions you may have. During that meeting a specialist will be able to discuss the process and clarify the documentation that you need. Intake meetings cannot be done during these times. Please feel free to stop by during the hours provided below:
+
+Walk-in Hours: Every Monday, Tuesday, Thursday and Friday from 9am–12pm & 1pm–4pm.
+
+Thank you,
+Joel`},
+
+  {id:'gen12',tab:'tab-gen',groupId:'grp-gen-misc',color:'c2',type:'email',icon:'🚌',title:'Accessible Transportation – Duty Driver',when:'Student approved for accessible transportation asking how it works',subject:'Accessible Transportation – Duty Driver Information',script:`Hello,
+
+Students approved for Accessible Transportation accommodation are encouraged to connect with the HPU Transportation department. Students may schedule transportation in advance or contact the HPU Duty Driver spontaneously for transport. When contacting the Duty Driver, be prepared with your contact information, housing assignment, and class schedule.
+
+Chris Rudisill | crudisil@highpoint.edu | 336-870-6607
+Hours: Monday – Friday 7:00 AM to 8:00 PM
+Saturday – Sunday 10:00 AM to 6:00 PM
+
+Thank you,
+Joel`},
+];
+
+// ── INIT DATA ─────────────────────────────────────────
+// Inject seed data only on first run
+function initData() {
+  const existing = jget('tabs');
+  if (existing && existing.length > 0) {
+    TABS    = existing;
+    GROUPS  = jget('groups')  || [];
+    SCRIPTS = jget('scripts') || [];
+  } else {
+    TABS    = SEED_TABS;
+    GROUPS  = SEED_GROUPS;
+    SCRIPTS = SEED_SCRIPTS;
+    persist();
+  }
+}
+
+let TABS=[], GROUPS=[], SCRIPTS=[];
+initData();
+
+let activeTab='tab-cn';
+let selectedColor='c1';
+let pendingImport=null;
+
+const COLORS=[
   {cls:'c1',hex:'#ff3d2e'},{cls:'c2',hex:'#ff8c00'},{cls:'c3',hex:'#00c853'},
   {cls:'c4',hex:'#00b0ff'},{cls:'c5',hex:'#d500f9'},{cls:'c6',hex:'#ff1744'},
   {cls:'c7',hex:'#00e5ff'},{cls:'c8',hex:'#ffab00'},{cls:'c9',hex:'#3d5afe'},
   {cls:'ca',hex:'#f50057'},
 ];
 
-function persist() { jset('tabs',TABS); jset('groups',GROUPS); jset('scripts',SCRIPTS); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function persist(){jset('tabs',TABS);jset('groups',GROUPS);jset('scripts',SCRIPTS);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-// ─────────────────────────────────────────────────────
-// BACKUP BANNER — show if scripts exist and banner not dismissed today
-// ─────────────────────────────────────────────────────
-function checkBanner() {
-  if (SCRIPTS.length === 0) return; // nothing to back up yet
-  const dismissed = sget('banner_dismissed');
-  const today     = new Date().toDateString();
-  if (dismissed === today) return; // already dismissed today
+// ── BANNER ────────────────────────────────────────────
+function checkBanner(){
+  if(SCRIPTS.length===0)return;
+  const dismissed=sget('banner_dismissed');
+  const today=new Date().toDateString();
+  if(dismissed===today)return;
   document.getElementById('backupBanner').classList.add('show');
 }
-function dismissBanner() {
-  sset('banner_dismissed', new Date().toDateString());
+function dismissBanner(){
+  sset('banner_dismissed',new Date().toDateString());
   document.getElementById('backupBanner').classList.remove('show');
 }
 
-// ─────────────────────────────────────────────────────
-// EXPORT
-// ─────────────────────────────────────────────────────
-function exportData() {
-  // Also snapshot any inline text edits
-  const editSnapshots = {};
-  SCRIPTS.forEach(s => {
-    const v = sget('edit_'+s.id);
-    if (v !== null) editSnapshots[s.id] = v;
-    const t = sget('title_'+s.id);
-    if (t !== null) editSnapshots['title_'+s.id] = t;
+// ── EXPORT ────────────────────────────────────────────
+function exportData(){
+  const edits={};
+  SCRIPTS.forEach(s=>{
+    const v=sget('edit_'+s.id); if(v!==null)edits[s.id]=v;
+    const t=sget('title_'+s.id); if(t!==null)edits['title_'+s.id]=t;
   });
-
-  const payload = {
-    version: 1,
-    exported: new Date().toISOString(),
-    tabs: TABS,
-    groups: GROUPS,
-    scripts: SCRIPTS,
-    edits: editSnapshots,
-  };
-
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  const date = new Date().toISOString().slice(0,10);
-  a.href = url;
-  a.download = `oars-scripts-backup-${date}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-
-  // Dismiss the reminder banner after a successful export
-  dismissBanner();
+  const payload={version:1,exported:new Date().toISOString(),tabs:TABS,groups:GROUPS,scripts:SCRIPTS,edits};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`joel-scripts-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  URL.revokeObjectURL(url); dismissBanner();
 }
 
-// ─────────────────────────────────────────────────────
-// IMPORT
-// ─────────────────────────────────────────────────────
-function triggerImport() {
-  document.getElementById('importFileInput').value = '';
-  document.getElementById('importFileInput').click();
-}
-
-function handleImportFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (!data.scripts || !Array.isArray(data.scripts)) throw new Error('Invalid file');
-      pendingImport = data;
-      const summary = document.getElementById('importSummary');
-      summary.innerHTML = `
-        <strong>${data.scripts.length}</strong> script${data.scripts.length!==1?'s':''} &nbsp;·&nbsp;
-        <strong>${(data.groups||[]).length}</strong> group${(data.groups||[]).length!==1?'s':''} &nbsp;·&nbsp;
-        <strong>${(data.tabs||[]).length}</strong> tab${(data.tabs||[]).length!==1?'s':''}<br>
-        <span style="color:var(--muted);font-size:11px">Exported: ${data.exported ? new Date(data.exported).toLocaleString() : 'Unknown'}</span>`;
-      document.querySelector('input[name=mergeMode][value=merge]').checked = true;
+// ── IMPORT ────────────────────────────────────────────
+function triggerImport(){document.getElementById('importFileInput').value='';document.getElementById('importFileInput').click();}
+function handleImportFile(e){
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.scripts||!Array.isArray(data.scripts))throw new Error('Invalid');
+      pendingImport=data;
+      document.getElementById('importSummary').innerHTML=`<strong>${data.scripts.length}</strong> scripts &nbsp;·&nbsp; <strong>${(data.groups||[]).length}</strong> groups &nbsp;·&nbsp; <strong>${(data.tabs||[]).length}</strong> tabs<br><span style="color:var(--muted);font-size:11px">Exported: ${data.exported?new Date(data.exported).toLocaleString():'Unknown'}</span>`;
+      document.querySelector('input[name=mergeMode][value=merge]').checked=true;
       document.getElementById('importModal').classList.add('open');
-    } catch(err) {
-      alert('That file doesn\'t look like a valid OARS Script Builder backup. Make sure you\'re selecting a .json file exported from this tool.');
-    }
+    }catch{alert('That doesn\'t look like a valid backup file.');}
   };
   reader.readAsText(file);
 }
-
-function closeImportModal() {
-  document.getElementById('importModal').classList.remove('open');
-  pendingImport = null;
-}
-
-function confirmImport() {
-  if (!pendingImport) return;
-  const mode = document.querySelector('input[name=mergeMode]:checked')?.value || 'merge';
-  const d    = pendingImport;
-
-  if (mode === 'replace') {
-    TABS    = d.tabs    || DEFAULT_TABS;
-    GROUPS  = d.groups  || [];
-    SCRIPTS = d.scripts || [];
-    // restore edits
-    if (d.edits) Object.entries(d.edits).forEach(([k,v]) => sset(k,v));
-  } else {
-    // Merge — skip duplicates by id
-    const existingTabIds    = new Set(TABS.map(t=>t.id));
-    const existingGroupIds  = new Set(GROUPS.map(g=>g.id));
-    const existingScriptIds = new Set(SCRIPTS.map(s=>s.id));
-
-    (d.tabs   ||[]).forEach(t => { if (!existingTabIds.has(t.id))    TABS.push(t); });
-    (d.groups ||[]).forEach(g => { if (!existingGroupIds.has(g.id))  GROUPS.push(g); });
-    (d.scripts||[]).forEach(s => { if (!existingScriptIds.has(s.id)) SCRIPTS.push(s); });
-    if (d.edits) Object.entries(d.edits).forEach(([k,v]) => { if (!sget(k)) sset(k,v); });
+function closeImportModal(){document.getElementById('importModal').classList.remove('open');pendingImport=null;}
+function confirmImport(){
+  if(!pendingImport)return;
+  const mode=document.querySelector('input[name=mergeMode]:checked')?.value||'merge';
+  const d=pendingImport;
+  if(mode==='replace'){
+    TABS=d.tabs||SEED_TABS; GROUPS=d.groups||[]; SCRIPTS=d.scripts||[];
+    if(d.edits)Object.entries(d.edits).forEach(([k,v])=>sset(k,v));
+  }else{
+    const tids=new Set(TABS.map(t=>t.id)),gids=new Set(GROUPS.map(g=>g.id)),sids=new Set(SCRIPTS.map(s=>s.id));
+    (d.tabs||[]).forEach(t=>{if(!tids.has(t.id))TABS.push(t);});
+    (d.groups||[]).forEach(g=>{if(!gids.has(g.id))GROUPS.push(g);});
+    (d.scripts||[]).forEach(s=>{if(!sids.has(s.id))SCRIPTS.push(s);});
+    if(d.edits)Object.entries(d.edits).forEach(([k,v])=>{if(!sget(k))sset(k,v);});
   }
-
-  persist();
-  closeImportModal();
-  buildAll();
-  showTab(TABS[0]?.id || activeTab);
-  activeTab = TABS[0]?.id || activeTab;
+  persist(); closeImportModal(); buildAll(); showTab(TABS[0]?.id||activeTab);
 }
 
-// ─────────────────────────────────────────────────────
-// BUILD ALL UI
-// ─────────────────────────────────────────────────────
-function buildAll() {
-  buildColorGrid();
-  buildTabSelectInModal();
-  const tabBar     = document.getElementById('tabBar');
-  const mainLayout = document.getElementById('mainLayout');
-  tabBar.innerHTML = '';
-  mainLayout.innerHTML = '';
-
-  TABS.forEach(t => {
-    const btn = document.createElement('button');
-    btn.className='tab-btn'; btn.id=`tab-${t.id}`;
-    btn.textContent=t.label;
-    btn.onclick=()=>showTab(t.id);
+// ── BUILD ─────────────────────────────────────────────
+function buildAll(){
+  buildColorGrid(); buildTabSelectInModal();
+  const tabBar=document.getElementById('tabBar');
+  const mainLayout=document.getElementById('mainLayout');
+  tabBar.innerHTML=''; mainLayout.innerHTML='';
+  TABS.forEach(t=>{
+    const btn=document.createElement('button');
+    btn.className='tab-btn';btn.id='tab-'+t.id;btn.textContent=t.label;btn.onclick=()=>showTab(t.id);
     tabBar.appendChild(btn);
-
-    const page = document.createElement('div');
-    page.className='tab-page'; page.id=`page-${t.id}`;
-
-    const sidebar = document.createElement('div');
-    sidebar.className='sidebar'; sidebar.id=`sidebar-${t.id}`;
-    buildSidebar(sidebar, t.id);
-
-    const view = document.createElement('div');
-    view.className='script-view'; view.id=`view-${t.id}`;
-    buildView(view, t.id);
-
-    page.appendChild(sidebar);
-    page.appendChild(view);
-    mainLayout.appendChild(page);
+    const page=document.createElement('div');page.className='tab-page';page.id='page-'+t.id;
+    const sidebar=document.createElement('div');sidebar.className='sidebar';sidebar.id='sidebar-'+t.id;buildSidebar(sidebar,t.id);
+    const view=document.createElement('div');view.className='script-view';view.id='view-'+t.id;buildView(view,t.id);
+    page.appendChild(sidebar);page.appendChild(view);mainLayout.appendChild(page);
   });
 }
 
-// ── SIDEBAR ──────────────────────────────────────────
-function buildSidebar(sidebar, tabId) {
-  sidebar.innerHTML = '';
-  const tabGroups  = GROUPS.filter(g=>g.tabId===tabId);
-  const tabScripts = SCRIPTS.filter(s=>s.tab===tabId);
-  const groupIdSet = new Set(tabGroups.map(g=>g.id));
-  const ungrouped  = tabScripts.filter(s=>!s.groupId||!groupIdSet.has(s.groupId));
-
-  tabGroups.forEach(group => {
-    sidebar.appendChild(makeSectionLabel(group, tabId));
+function buildSidebar(sidebar,tabId){
+  sidebar.innerHTML='';
+  const tabGroups=GROUPS.filter(g=>g.tabId===tabId);
+  const tabScripts=SCRIPTS.filter(s=>s.tab===tabId);
+  const gidSet=new Set(tabGroups.map(g=>g.id));
+  const ungrouped=tabScripts.filter(s=>!s.groupId||!gidSet.has(s.groupId));
+  tabGroups.forEach(group=>{
+    sidebar.appendChild(makeSectionLabel(group,tabId));
     tabScripts.filter(s=>s.groupId===group.id).forEach(s=>sidebar.appendChild(makeScriptBtn(s,tabId)));
-    const addS=document.createElement('button'); addS.className='add-script-btn'; addS.innerHTML='＋ Add Script'; addS.onclick=()=>openModal(tabId,group.id); sidebar.appendChild(addS);
+    const addS=document.createElement('button');addS.className='add-script-btn';addS.innerHTML='＋ Add Script';addS.onclick=()=>openModal(tabId,group.id);sidebar.appendChild(addS);
   });
-
-  if (ungrouped.length) {
-    const lbl=document.createElement('div'); lbl.className='section-label';
-    lbl.innerHTML=`<span class="section-dot"></span><span class="section-name">Ungrouped</span>`;
-    sidebar.appendChild(lbl);
+  if(ungrouped.length){
+    const lbl=document.createElement('div');lbl.className='section-label';lbl.innerHTML='<span class="section-dot"></span><span class="section-name">Ungrouped</span>';sidebar.appendChild(lbl);
     ungrouped.forEach(s=>sidebar.appendChild(makeScriptBtn(s,tabId)));
   }
-
-  const addG=document.createElement('button'); addG.className='add-group-btn'; addG.innerHTML='＋ Add Group'; addG.onclick=()=>addGroup(tabId); sidebar.appendChild(addG);
-
-  if (!tabGroups.length) {
-    const addS=document.createElement('button'); addS.className='add-script-btn'; addS.innerHTML='＋ Add Script'; addS.onclick=()=>openModal(tabId,null); sidebar.appendChild(addS);
-  }
+  const addG=document.createElement('button');addG.className='add-group-btn';addG.innerHTML='＋ Add Group';addG.onclick=()=>addGroup(tabId);sidebar.appendChild(addG);
+  if(!tabGroups.length){const addS=document.createElement('button');addS.className='add-script-btn';addS.innerHTML='＋ Add Script';addS.onclick=()=>openModal(tabId,null);sidebar.appendChild(addS);}
 }
 
-function makeSectionLabel(group, tabId) {
-  const wrap=document.createElement('div'); wrap.className='section-label'; wrap.id=`grp-lbl-${group.id}`;
-  wrap.innerHTML=`<span class="section-dot"></span>
-    <span class="section-name" id="grp-name-${group.id}">${esc(group.label)}</span>
-    <span class="section-actions">
-      <button class="section-icon-btn" onclick="startGroupRename('${group.id}')" title="Rename">✏</button>
-      <button class="section-icon-btn del" onclick="deleteGroup('${group.id}','${tabId}')" title="Delete">✕</button>
-    </span>`;
+function makeSectionLabel(group,tabId){
+  const wrap=document.createElement('div');wrap.className='section-label';wrap.id='grp-lbl-'+group.id;
+  wrap.innerHTML=`<span class="section-dot"></span><span class="section-name" id="grp-name-${group.id}">${esc(group.label)}</span><span class="section-actions"><button class="section-icon-btn" onclick="startGroupRename('${group.id}')" title="Rename">✏</button><button class="section-icon-btn del" onclick="deleteGroup('${group.id}','${tabId}')" title="Delete">✕</button></span>`;
   return wrap;
 }
 
-function makeScriptBtn(s, tabId) {
+function makeScriptBtn(s,tabId){
   const title=sget('title_'+s.id)||s.title;
-  const b=document.createElement('button'); b.className=`script-btn ${s.color}`; b.id=`btn-${s.id}`;
-  b.innerHTML=`<span class="btn-icon">${s.icon||'📄'}</span>${esc(title)}`;
-  b.onclick=()=>selectScript(s.id,tabId);
-  return b;
+  const b=document.createElement('button');b.className='script-btn '+s.color;b.id='btn-'+s.id;
+  b.innerHTML='<span class="btn-icon">'+(s.icon||'📄')+'</span>'+esc(title);
+  b.onclick=()=>selectScript(s.id,tabId);return b;
 }
 
-function buildView(view, tabId) {
-  view.innerHTML=`<div class="placeholder" id="placeholder-${tabId}">
-    <div class="placeholder-bg-text"><span>Scripts</span><span>OARS</span><span>Templates</span></div>
-    <div class="placeholder-hand">👈</div>
-    <div class="placeholder-label">Select a script from the left</div>
-    <div class="placeholder-sub">Use ＋ Add Group then ＋ Add Script to build your library</div>
-  </div>`;
-  SCRIPTS.filter(s=>s.tab===tabId).forEach(s=>{ view.innerHTML+=renderPanel(s); });
+function buildView(view,tabId){
+  view.innerHTML=`<div class="placeholder" id="placeholder-${tabId}"><div class="placeholder-bg-text"><span>Scripts</span><span>OARS</span><span>Templates</span></div><div class="placeholder-hand">👈</div><div class="placeholder-label">Select a script from the left</div><div class="placeholder-sub">Use ＋ Add Script to add to any group</div></div>`;
+  SCRIPTS.filter(s=>s.tab===tabId).forEach(s=>{view.innerHTML+=renderPanel(s);});
 }
 
-function renderPanel(s) {
+function renderPanel(s){
   const isEmail=s.type==='email';
   const title=sget('title_'+s.id)||s.title;
   const savedEdit=sget('edit_'+s.id);
@@ -612,268 +918,132 @@ function renderPanel(s) {
   const rows=Math.max(8,(s.script.match(/\n/g)||[]).length+4);
   const fieldsHtml=isEmail
     ?`<div class="fields"><div class="field-row"><label>Subject</label><input type="text" id="subj-${s.id}" value="${esc(s.subject||'')}"></div></div>`
-    :`<div class="fields">
-        <div class="field-row"><label>Date</label><input type="text" id="date-${s.id}" placeholder="e.g. July 7, 2025"></div>
-        <div class="field-row"><label>Subject</label><span class="field-val">${esc(s.subject||'')}</span></div>
-       </div>`;
-  return `
-  <div class="script-panel" id="panel-${s.id}">
-    <div class="title-row">
-      <div class="script-title" id="title-display-${s.id}">${s.icon||'📄'} ${esc(title)}</div>
-      <button class="rename-btn" onclick="startRename('${s.id}')">✏ Rename</button>
-    </div>
-    <div class="script-when">Use when: ${esc(s.when)}</div>
-    ${fieldsHtml}
-    <div class="script-box">
-      <button class="delete-btn" onclick="deleteScript('${s.id}')">🗑 Delete</button>
-      <textarea class="script-text" id="txt-${s.id}" rows="${rows}" oninput="autoSave('${s.id}')">${esc(scriptText)}</textarea>
-      <button class="copy-btn" id="cbtn-${s.id}" onclick="copyIt('${s.id}')">Copy</button>
-    </div>
-    <div class="save-indicator" id="saved-${s.id}"></div>
-  </div>`;
+    :`<div class="fields"><div class="field-row"><label>Date</label><input type="text" id="date-${s.id}" placeholder="e.g. July 7, 2025"></div><div class="field-row"><label>Subject</label><span class="field-val">${esc(s.subject||'')}</span></div></div>`;
+  return `<div class="script-panel" id="panel-${s.id}"><div class="title-row"><div class="script-title" id="title-display-${s.id}">${s.icon||'📄'} ${esc(title)}</div><button class="rename-btn" onclick="startRename('${s.id}')">✏ Rename</button></div><div class="script-when">Use when: ${esc(s.when)}</div>${fieldsHtml}<div class="script-box"><button class="delete-btn" onclick="deleteScript('${s.id}')">🗑 Delete</button><textarea class="script-text" id="txt-${s.id}" rows="${rows}" oninput="autoSave('${s.id}')">${esc(scriptText)}</textarea><button class="copy-btn" id="cbtn-${s.id}" onclick="copyIt('${s.id}')">Copy</button></div><div class="save-indicator" id="saved-${s.id}"></div></div>`;
 }
 
-// ─────────────────────────────────────────────────────
-// GROUPS
-// ─────────────────────────────────────────────────────
-function addGroup(tabId) {
-  const label=prompt('Group name (e.g. Session Notes, Admin, Faculty Emails):');
-  if (!label?.trim()) return;
-  GROUPS.push({id:'grp-'+Date.now(),tabId,label:label.trim()});
-  persist(); buildAll(); showTab(tabId);
+// ── GROUPS ────────────────────────────────────────────
+function addGroup(tabId){const label=prompt('Group name:');if(!label?.trim())return;GROUPS.push({id:'grp-'+Date.now(),tabId,label:label.trim()});persist();buildAll();showTab(tabId);}
+function deleteGroup(groupId,tabId){
+  const group=GROUPS.find(g=>g.id===groupId);const count=SCRIPTS.filter(s=>s.groupId===groupId).length;
+  const msg=count?`Delete group "${group?.label}"? The ${count} script${count>1?'s':''} inside will become ungrouped.`:`Delete group "${group?.label}"?`;
+  if(!confirm(msg))return;
+  GROUPS=GROUPS.filter(g=>g.id!==groupId);SCRIPTS.forEach(s=>{if(s.groupId===groupId)s.groupId=null;});
+  persist();buildAll();showTab(tabId);
 }
-function deleteGroup(groupId, tabId) {
-  const group=GROUPS.find(g=>g.id===groupId);
-  const count=SCRIPTS.filter(s=>s.groupId===groupId).length;
-  const msg=count?`Delete group "${group?.label}"? The ${count} script${count>1?'s':''} inside will become ungrouped (not deleted).`:`Delete group "${group?.label}"?`;
-  if (!confirm(msg)) return;
-  GROUPS=GROUPS.filter(g=>g.id!==groupId);
-  SCRIPTS.forEach(s=>{if(s.groupId===groupId)s.groupId=null;});
-  persist(); buildAll(); showTab(tabId);
-}
-function startGroupRename(groupId) {
-  const group=GROUPS.find(g=>g.id===groupId);
-  const nameSpan=document.getElementById('grp-name-'+groupId);
-  const lbl=document.getElementById('grp-lbl-'+groupId);
-  if (!nameSpan||!group) return;
-  const input=document.createElement('input'); input.className='section-rename-input'; input.value=group.label;
-  nameSpan.replaceWith(input);
-  lbl.querySelectorAll('.section-icon-btn').forEach(b=>b.style.display='none');
-  input.focus(); input.select();
-  const save=()=>{ const v=input.value.trim(); if(v){group.label=v;persist();} buildAll(); showTab(activeTab); };
-  input.addEventListener('blur',save);
-  input.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();input.blur();} if(e.key==='Escape'){buildAll();showTab(activeTab);} });
+function startGroupRename(groupId){
+  const group=GROUPS.find(g=>g.id===groupId);const nameSpan=document.getElementById('grp-name-'+groupId);const lbl=document.getElementById('grp-lbl-'+groupId);if(!nameSpan||!group)return;
+  const input=document.createElement('input');input.className='section-rename-input';input.value=group.label;nameSpan.replaceWith(input);
+  lbl.querySelectorAll('.section-icon-btn').forEach(b=>b.style.display='none');input.focus();input.select();
+  const save=()=>{const v=input.value.trim();if(v){group.label=v;persist();}buildAll();showTab(activeTab);};
+  input.addEventListener('blur',save);input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();input.blur();}if(e.key==='Escape'){buildAll();showTab(activeTab);}});
 }
 
-// ─────────────────────────────────────────────────────
-// SCRIPT MODAL
-// ─────────────────────────────────────────────────────
-function buildTabSelectInModal() {
-  const sel=document.getElementById('m-tab'); if(!sel) return;
-  sel.innerHTML=TABS.map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join('');
-}
-function refreshGroupSelect(preselect) {
-  const tabId=document.getElementById('m-tab')?.value;
-  const sel=document.getElementById('m-group'); if(!sel||!tabId) return;
+// ── MODAL ─────────────────────────────────────────────
+function buildTabSelectInModal(){const sel=document.getElementById('m-tab');if(!sel)return;sel.innerHTML=TABS.map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join('');}
+function refreshGroupSelect(preselect){
+  const tabId=document.getElementById('m-tab')?.value;const sel=document.getElementById('m-group');if(!sel||!tabId)return;
   const tabGroups=GROUPS.filter(g=>g.tabId===tabId);
-  sel.innerHTML=tabGroups.length
-    ?tabGroups.map(g=>`<option value="${g.id}">${esc(g.label)}</option>`).join('')+`<option value="">— Ungrouped —</option>`
-    :`<option value="">— No groups yet (add one from the sidebar) —</option>`;
-  if(preselect) sel.value=preselect;
+  sel.innerHTML=tabGroups.length?tabGroups.map(g=>`<option value="${g.id}">${esc(g.label)}</option>`).join('')+'<option value="">— Ungrouped —</option>':'<option value="">— No groups yet —</option>';
+  if(preselect)sel.value=preselect;
 }
-function openModal(defaultTab, defaultGroup) {
-  document.getElementById('m-title').value=''; document.getElementById('m-subject').value='';
-  document.getElementById('m-when').value=''; document.getElementById('m-script').value='';
-  document.getElementById('m-type').value='note';
-  document.getElementById('m-tab').value=defaultTab||activeTab;
-  refreshGroupSelect(defaultGroup||null);
-  selectedColor='c1';
-  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
-  document.querySelector('.color-swatch[data-cls="c1"]')?.classList.add('selected');
+function openModal(defaultTab,defaultGroup){
+  document.getElementById('m-title').value='';document.getElementById('m-subject').value='';document.getElementById('m-when').value='';document.getElementById('m-script').value='';document.getElementById('m-type').value='note';
+  document.getElementById('m-tab').value=defaultTab||activeTab;refreshGroupSelect(defaultGroup||null);
+  selectedColor='c1';document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));document.querySelector('.color-swatch[data-cls="c1"]')?.classList.add('selected');
   document.getElementById('modalOverlay').classList.add('open');
 }
-function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
-function saveScript() {
-  const title=document.getElementById('m-title').value.trim();
-  const tab=document.getElementById('m-tab').value;
-  const groupId=document.getElementById('m-group').value||null;
-  const type=document.getElementById('m-type').value;
-  const subject=document.getElementById('m-subject').value.trim();
-  const when=document.getElementById('m-when').value.trim();
-  const script=document.getElementById('m-script').value.trim();
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function saveScript(){
+  const title=document.getElementById('m-title').value.trim();const tab=document.getElementById('m-tab').value;const groupId=document.getElementById('m-group').value||null;
+  const type=document.getElementById('m-type').value;const subject=document.getElementById('m-subject').value.trim();const when=document.getElementById('m-when').value.trim();const script=document.getElementById('m-script').value.trim();
   if(!title||!script){alert('Title and script body are required.');return;}
-  const id='script_'+Date.now();
-  SCRIPTS.push({id,tab,groupId,color:selectedColor,type,icon:type==='note'?'📝':'✉️',title,when:when||'Custom script',subject:subject||title,script});
-  persist(); closeModal(); buildAll(); showTab(tab);
-  setTimeout(()=>selectScript(id,tab),50);
-  checkBanner(); // re-evaluate banner after adding
+  const id='script_'+Date.now();SCRIPTS.push({id,tab,groupId,color:selectedColor,type,icon:type==='note'?'📝':'✉️',title,when:when||'Custom script',subject:subject||title,script});
+  persist();closeModal();buildAll();showTab(tab);setTimeout(()=>selectScript(id,tab),50);
 }
-function deleteScript(id) {
-  if(!confirm('Delete this script? This cannot be undone.')) return;
-  SCRIPTS=SCRIPTS.filter(s=>s.id!==id); sdel('edit_'+id); sdel('title_'+id);
-  persist(); buildAll(); showTab(activeTab);
+function deleteScript(id){
+  if(!confirm('Delete this script? This cannot be undone.'))return;
+  SCRIPTS=SCRIPTS.filter(s=>s.id!==id);sdel('edit_'+id);sdel('title_'+id);persist();buildAll();showTab(activeTab);
 }
 
-// ─────────────────────────────────────────────────────
-// RENAME SCRIPT
-// ─────────────────────────────────────────────────────
-function startRename(id) {
-  const s=SCRIPTS.find(x=>x.id===id);
-  const row=document.querySelector(`#panel-${id} .title-row`);
-  const display=document.getElementById('title-display-'+id);
-  const btn=row.querySelector('.rename-btn');
-  const input=document.createElement('input'); input.className='title-input'; input.value=sget('title_'+id)||s.title;
-  input.id='title-input-'+id; display.replaceWith(input);
-  btn.textContent='✓ Save'; btn.onclick=()=>saveRename(id);
-  input.focus(); input.select();
-  input.addEventListener('keydown',e=>{ if(e.key==='Enter')saveRename(id); if(e.key==='Escape'){buildAll();showTab(activeTab);} });
+// ── RENAME ────────────────────────────────────────────
+function startRename(id){
+  const s=SCRIPTS.find(x=>x.id===id);const row=document.querySelector('#panel-'+id+' .title-row');const display=document.getElementById('title-display-'+id);const btn=row.querySelector('.rename-btn');
+  const input=document.createElement('input');input.className='title-input';input.value=sget('title_'+id)||s.title;input.id='title-input-'+id;display.replaceWith(input);btn.textContent='✓ Save';btn.onclick=()=>saveRename(id);
+  input.focus();input.select();input.addEventListener('keydown',e=>{if(e.key==='Enter')saveRename(id);if(e.key==='Escape'){buildAll();showTab(activeTab);}});
 }
-function saveRename(id) {
-  const input=document.getElementById('title-input-'+id); if(!input) return;
-  const v=input.value.trim(); if(!v) return;
-  sset('title_'+id,v);
-  const ci=SCRIPTS.findIndex(x=>x.id===id); if(ci>=0){SCRIPTS[ci].title=v;persist();}
-  buildAll(); showTab(activeTab); setTimeout(()=>selectScript(id,activeTab),40);
+function saveRename(id){
+  const input=document.getElementById('title-input-'+id);if(!input)return;const v=input.value.trim();if(!v)return;
+  sset('title_'+id,v);const ci=SCRIPTS.findIndex(x=>x.id===id);if(ci>=0){SCRIPTS[ci].title=v;persist();}
+  buildAll();showTab(activeTab);setTimeout(()=>selectScript(id,activeTab),40);
 }
 
-// ─────────────────────────────────────────────────────
-// AUTO-SAVE & COPY
-// ─────────────────────────────────────────────────────
+// ── AUTO-SAVE / COPY ──────────────────────────────────
 let saveTimer=null;
-function autoSave(id) {
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{
-    const val=document.getElementById('txt-'+id)?.value;
-    if(val!==undefined){
-      sset('edit_'+id,val);
-      const ind=document.getElementById('saved-'+id);
-      if(ind){ind.textContent='✓ Saved';ind.style.color='#4caf82';setTimeout(()=>{if(ind)ind.textContent='';},2000);}
-    }
+function autoSave(id){
+  clearTimeout(saveTimer);saveTimer=setTimeout(()=>{
+    const val=document.getElementById('txt-'+id)?.value;if(val!==undefined){sset('edit_'+id,val);const ind=document.getElementById('saved-'+id);if(ind){ind.textContent='✓ Saved';ind.style.color='#4caf82';setTimeout(()=>{if(ind)ind.textContent='';},2000);}}
   },800);
 }
-function copyIt(id) {
-  const s=SCRIPTS.find(x=>x.id===id);
-  const body=document.getElementById(`txt-${id}`).value;
-  let text;
-  if(s.type==='email'){const subj=document.getElementById(`subj-${id}`)?.value||s.subject;text=`Subject: ${subj}\n\n${body}`;}
-  else{const dateVal=document.getElementById(`date-${id}`)?.value.trim()||'[DATE]';text=`Date: ${dateVal}\nSubject: ${s.subject}\n\n${body}`;}
-  navigator.clipboard.writeText(text).then(()=>{
-    const btn=document.getElementById(`cbtn-${id}`);
-    btn.textContent='✓ Copied!'; btn.classList.add('done');
-    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done');},2000);
-  });
+function copyIt(id){
+  const s=SCRIPTS.find(x=>x.id===id);const body=document.getElementById('txt-'+id).value;let text;
+  if(s.type==='email'){const subj=document.getElementById('subj-'+id)?.value||s.subject;text='Subject: '+subj+'\n\n'+body;}
+  else{const dateVal=document.getElementById('date-'+id)?.value.trim()||'[DATE]';text='Date: '+dateVal+'\nSubject: '+s.subject+'\n\n'+body;}
+  navigator.clipboard.writeText(text).then(()=>{const btn=document.getElementById('cbtn-'+id);btn.textContent='✓ Copied!';btn.classList.add('done');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done');},2000);});
 }
 
-// ─────────────────────────────────────────────────────
-// COLOR GRID
-// ─────────────────────────────────────────────────────
-function buildColorGrid() {
-  const grid=document.getElementById('colorGrid'); grid.innerHTML='';
-  COLORS.forEach(c=>{
-    const sw=document.createElement('div'); sw.className='color-swatch'; sw.style.background=c.hex; sw.setAttribute('data-cls',c.cls);
-    sw.onclick=()=>{selectedColor=c.cls;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));sw.classList.add('selected');};
-    grid.appendChild(sw);
-  });
+// ── COLOR GRID ────────────────────────────────────────
+function buildColorGrid(){
+  const grid=document.getElementById('colorGrid');grid.innerHTML='';
+  COLORS.forEach(c=>{const sw=document.createElement('div');sw.className='color-swatch';sw.style.background=c.hex;sw.setAttribute('data-cls',c.cls);sw.onclick=()=>{selectedColor=c.cls;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));sw.classList.add('selected');};grid.appendChild(sw);});
 }
 
-// ─────────────────────────────────────────────────────
-// TAB MANAGER
-// ─────────────────────────────────────────────────────
-function openTabManager() {
-  const list=document.getElementById('tabManagerList'); list.innerHTML='';
-  TABS.forEach(t=>{
-    const row=document.createElement('div'); row.className='tab-manager-row'; row.dataset.id=t.id;
-    row.innerHTML=`<input type="text" value="${esc(t.label)}" placeholder="Tab name…" maxlength="40">
-      <button class="tab-remove-btn" onclick="this.closest('.tab-manager-row').remove()" title="Remove">✕</button>`;
-    list.appendChild(row);
-  });
+// ── TAB MANAGER ───────────────────────────────────────
+function openTabManager(){
+  const list=document.getElementById('tabManagerList');list.innerHTML='';
+  TABS.forEach(t=>{const row=document.createElement('div');row.className='tab-manager-row';row.dataset.id=t.id;row.innerHTML=`<input type="text" value="${esc(t.label)}" maxlength="40"><button class="tab-remove-btn" onclick="this.closest('.tab-manager-row').remove()">✕</button>`;list.appendChild(row);});
   document.getElementById('tabManagerModal').classList.add('open');
 }
-function closeTabManager(){ document.getElementById('tabManagerModal').classList.remove('open'); }
-function addTabRow() {
-  const list=document.getElementById('tabManagerList');
-  const row=document.createElement('div'); row.className='tab-manager-row'; row.dataset.id='tab-'+Date.now();
-  row.innerHTML=`<input type="text" value="" placeholder="New tab name…" maxlength="40">
-    <button class="tab-remove-btn" onclick="this.closest('.tab-manager-row').remove()" title="Remove">✕</button>`;
-  list.appendChild(row); row.querySelector('input').focus();
-}
-function saveTabManager() {
-  const rows=document.querySelectorAll('#tabManagerList .tab-manager-row');
-  const newTabs=[]; rows.forEach(row=>{const l=row.querySelector('input').value.trim();if(l)newTabs.push({id:row.dataset.id,label:l});});
+function closeTabManager(){document.getElementById('tabManagerModal').classList.remove('open');}
+function addTabRow(){const list=document.getElementById('tabManagerList');const row=document.createElement('div');row.className='tab-manager-row';row.dataset.id='tab-'+Date.now();row.innerHTML='<input type="text" value="" placeholder="New tab name…" maxlength="40"><button class="tab-remove-btn" onclick="this.closest(\'.tab-manager-row\').remove()">✕</button>';list.appendChild(row);row.querySelector('input').focus();}
+function saveTabManager(){
+  const rows=document.querySelectorAll('#tabManagerList .tab-manager-row');const newTabs=[];
+  rows.forEach(row=>{const l=row.querySelector('input').value.trim();if(l)newTabs.push({id:row.dataset.id,label:l});});
   if(!newTabs.length){alert('Add at least one tab.');return;}
-  TABS=newTabs; persist(); activeTab=TABS[0].id;
-  closeTabManager(); buildAll(); showTab(activeTab);
+  TABS=newTabs;persist();activeTab=TABS[0].id;closeTabManager();buildAll();showTab(activeTab);
 }
 
-// ─────────────────────────────────────────────────────
-// NAVIGATION
-// ─────────────────────────────────────────────────────
-function selectScript(id, tab) {
-  document.querySelectorAll(`#view-${tab} .script-panel`).forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll(`#sidebar-${tab} .script-btn`).forEach(b=>b.classList.remove('active'));
-  const ph=document.getElementById(`placeholder-${tab}`); if(ph) ph.style.display='none';
-  document.getElementById(`panel-${id}`)?.classList.add('active');
-  document.getElementById(`btn-${id}`)?.classList.add('active');
+// ── NAVIGATION ────────────────────────────────────────
+function selectScript(id,tab){
+  document.querySelectorAll('#view-'+tab+' .script-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#sidebar-'+tab+' .script-btn').forEach(b=>b.classList.remove('active'));
+  const ph=document.getElementById('placeholder-'+tab);if(ph)ph.style.display='none';
+  document.getElementById('panel-'+id)?.classList.add('active');document.getElementById('btn-'+id)?.classList.add('active');
 }
-function showTab(id) {
+function showTab(id){
   activeTab=id;
-  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById(`page-${id}`)?.classList.add('active');
-  document.getElementById(`tab-${id}`)?.classList.add('active');
-  document.getElementById('searchPage').classList.remove('active');
-  document.getElementById('searchBox').value='';
-  document.getElementById('clearBtn').style.display='none';
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id)?.classList.add('active');document.getElementById('tab-'+id)?.classList.add('active');
+  document.getElementById('searchPage').classList.remove('active');document.getElementById('searchBox').value='';document.getElementById('clearBtn').style.display='none';
 }
 
-// ─────────────────────────────────────────────────────
-// SEARCH
-// ─────────────────────────────────────────────────────
-function doSearch(q) {
-  q=q.trim(); if(!q){clearSearch();return;}
-  const ql=q.toLowerCase();
-  const tabMap={}; TABS.forEach(t=>tabMap[t.id]=t.label);
+// ── SEARCH ────────────────────────────────────────────
+function doSearch(q){
+  q=q.trim();if(!q){clearSearch();return;}
+  const ql=q.toLowerCase();const tabMap={};TABS.forEach(t=>tabMap[t.id]=t.label);
   const matches=SCRIPTS.filter(s=>(s.title+' '+s.when+' '+s.script+' '+s.subject).toLowerCase().includes(ql));
   document.getElementById('clearBtn').style.display='inline';
-  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('searchPage').classList.add('active');
-  document.getElementById('searchBanner').classList.add('on');
-  document.getElementById('searchBanner').textContent=`${matches.length} result${matches.length!==1?'s':''} for "${q}"`;
-  document.getElementById('searchResults').innerHTML=matches.length
-    ?matches.map(s=>`<div class="search-hit" onclick="goToScript('${s.id}','${s.tab}')">
-        <div class="search-hit-title">${s.icon||'📄'} ${esc(s.title)}</div>
-        <div class="search-hit-tab">${esc(tabMap[s.tab]||s.tab)}</div>
-        <div class="search-hit-when">${esc(s.when)}</div>
-      </div>`).join('')
-    :`<div style="color:var(--muted);padding:40px;text-align:center">No results for "<strong>${esc(q)}</strong>"</div>`;
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('searchPage').classList.add('active');document.getElementById('searchBanner').classList.add('on');
+  document.getElementById('searchBanner').textContent=matches.length+' result'+(matches.length!==1?'s':'')+' for "'+q+'"';
+  document.getElementById('searchResults').innerHTML=matches.length?matches.map(s=>`<div class="search-hit" onclick="goToScript('${s.id}','${s.tab}')"><div class="search-hit-title">${s.icon||'📄'} ${esc(s.title)}</div><div class="search-hit-tab">${esc(tabMap[s.tab]||s.tab)}</div><div class="search-hit-when">${esc(s.when)}</div></div>`).join(''):`<div style="color:var(--muted);padding:40px;text-align:center">No results for "<strong>${esc(q)}</strong>"</div>`;
 }
 function goToScript(id,tab){clearSearch();showTab(tab);setTimeout(()=>selectScript(id,tab),40);}
-function clearSearch() {
-  document.getElementById('searchBox').value='';
-  document.getElementById('clearBtn').style.display='none';
-  document.getElementById('searchBanner').classList.remove('on');
-  document.getElementById('searchPage').classList.remove('active');
-  showTab(activeTab);
-}
+function clearSearch(){document.getElementById('searchBox').value='';document.getElementById('clearBtn').style.display='none';document.getElementById('searchBanner').classList.remove('on');document.getElementById('searchPage').classList.remove('active');showTab(activeTab);}
 
-// Backdrop close
-['modalOverlay','importModal','tabManagerModal'].forEach(id=>{
-  document.getElementById(id).addEventListener('click',e=>{
-    if(e.target===document.getElementById(id)){
-      if(id==='modalOverlay') closeModal();
-      else if(id==='importModal') closeImportModal();
-      else if(id==='tabManagerModal') closeTabManager();
-    }
-  });
-});
+['modalOverlay','importModal','tabManagerModal'].forEach(id=>{document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id)){if(id==='modalOverlay')closeModal();else if(id==='importModal')closeImportModal();else closeTabManager();}});});
 
-// ─────────────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────────────
-buildAll();
-showTab(activeTab);
-checkBanner();
+buildAll();showTab(activeTab);checkBanner();
 </script>
 </body>
 </html>
