@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Joel · OARS Script Builder</title>
+<title>OARS · Script Builder</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&display=swap');
 
@@ -174,6 +174,13 @@ textarea.script-text:focus{border-color:rgba(0,255,136,.35);}
 .tab-remove-btn:hover{color:#ff6b87;}
 .add-tab-row-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;background:rgba(0,255,136,.06);border:1px dashed rgba(0,255,136,.28);border-radius:8px;color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
 .tab-manager-hint{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;}
+
+/* EDIT SCRIPT MODAL */
+#editModal .modal{max-width:580px;}
+.edit-color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.edit-color-swatch{height:34px;border-radius:20px;cursor:pointer;border:2px solid transparent;transition:transform .1s,box-shadow .15s;}
+.edit-color-swatch:hover{transform:scale(1.08);}
+.edit-color-swatch.selected{border-color:var(--gold);box-shadow:0 0 10px rgba(0,255,136,.4);}
 </style>
 </head>
 <body>
@@ -186,7 +193,7 @@ textarea.script-text:focus{border-color:rgba(0,255,136,.35);}
 </div>
 
 <header>
-  <div class="logo">Joel · <span>Script Builder</span></div>
+  <div class="logo">OARS · <span>Script Builder</span></div>
   <div class="search-wrap">
     <svg width="14" height="14" fill="white" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
     <input id="searchBox" type="text" placeholder="Search all scripts…" oninput="doSearch(this.value)" autocomplete="off">
@@ -243,6 +250,23 @@ textarea.script-text:focus{border-color:rgba(0,255,136,.35);}
   </div>
 </div>
 
+<!-- EDIT SCRIPT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header"><h2>✏ Edit Script</h2><button class="modal-close" onclick="closeEditModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Title</label><input type="text" id="e-title" placeholder="Script title"></div>
+      <div class="form-group"><label>Tab</label><select id="e-tab" onchange="refreshEditGroupSelect()"></select></div>
+      <div class="form-group"><label>Group</label><select id="e-group"></select></div>
+      <div class="form-group"><label>Type</label><select id="e-type"><option value="note">Case Note</option><option value="email">Email</option></select></div>
+      <div class="form-group"><label>Subject Line</label><input type="text" id="e-subject" placeholder="e.g. Follow-Up – AT Support"></div>
+      <div class="form-group"><label>Use When</label><input type="text" id="e-when" placeholder="e.g. After meeting with a student for the first time"></div>
+      <div class="form-group"><label>Button Color</label><div class="edit-color-grid" id="editColorGrid"></div></div>
+      <div class="modal-footer"><button class="btn-cancel" onclick="closeEditModal()">Cancel</button><button class="btn-save" onclick="saveEdit()">Save Changes</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- TAB MANAGER -->
 <div class="modal-overlay" id="tabManagerModal">
   <div class="modal">
@@ -258,7 +282,7 @@ textarea.script-text:focus{border-color:rgba(0,255,136,.35);}
 
 <script>
 // ── STORAGE ──────────────────────────────────────────
-const STORE='joel_sb_';
+const STORE='oars_sb_';
 const jget=k=>{try{return JSON.parse(localStorage.getItem(STORE+k));}catch{return null;}};
 const jset=(k,v)=>localStorage.setItem(STORE+k,JSON.stringify(v));
 const sget=k=>localStorage.getItem(STORE+k);
@@ -266,499 +290,17 @@ const sset=(k,v)=>localStorage.setItem(STORE+k,v);
 const sdel=k=>localStorage.removeItem(STORE+k);
 
 // ── SEED DATA ─────────────────────────────────────────
-// Pre-loaded from TEMPLATES_TO_CASE_NOTE_-Back_up.docx
-// Only injected on first run (when localStorage is empty)
+// Default blank tabs — user builds their own groups and scripts
 const SEED_TABS=[
-  {id:'tab-cn',label:'📋 Case Notes'},
-  {id:'tab-at',label:'🖥️ AT Emails'},
-  {id:'tab-te',label:'📝 Testing Emails'},
-  {id:'tab-gen',label:'📬 General Emails'},
+  {id:'tab-1',label:'📋 Tab 1'},
+  {id:'tab-2',label:'✉️ Tab 2'},
+  {id:'tab-3',label:'📁 Tab 3'},
 ];
 
-const SEED_GROUPS=[
-  // Case Notes
-  {id:'grp-cn-session',tabId:'tab-cn',label:'Session Notes'},
-  {id:'grp-cn-admin',tabId:'tab-cn',label:'Administration'},
-  // AT Emails
-  {id:'grp-at-altfmt',tabId:'tab-at',label:'Alt Format'},
-  {id:'grp-at-tech',tabId:'tab-at',label:'Assistive Technology'},
-  {id:'grp-at-appt',tabId:'tab-at',label:'Appointments'},
-  // Testing
-  {id:'grp-te-sched',tabId:'tab-te',label:'Scheduling'},
-  {id:'grp-te-faculty',tabId:'tab-te',label:'Faculty'},
-  {id:'grp-te-student',tabId:'tab-te',label:'Student Reminders'},
-  // General
-  {id:'grp-gen-housing',tabId:'tab-gen',label:'Housing'},
-  {id:'grp-gen-esa',tabId:'tab-gen',label:'ESA'},
-  {id:'grp-gen-academic',tabId:'tab-gen',label:'Academic'},
-  {id:'grp-gen-parents',tabId:'tab-gen',label:'Parents'},
-  {id:'grp-gen-misc',tabId:'tab-gen',label:'Misc'},
-];
+const SEED_GROUPS=[];
 
-const SEED_SCRIPTS=[
-  // ── CASE NOTES ─────────────────────────────────────
-  {id:'cn1',tab:'tab-cn',groupId:'grp-cn-session',color:'c3',type:'note',icon:'📝',title:'AT Support – Alt Format & Genio',when:'After a full AT session covering alt format, NaturalReader, and Genio',subject:'Alternate Text Format and Genio Support',script:`Date: [DATE]
-Subject: Alternate Text Format and Genio Support
+const SEED_SCRIPTS=[];
 
-Peddle met with the student to provide guidance on submitting an alternate text format request. Peddle demonstrated how to access Accommodate, locate the alternate text request form, complete the required fields, upload proof of purchase, and submit the request. Peddle then explained the next steps in the process, including how to retrieve the accessible file from SharePoint, save it to a desktop folder, and access the content using NaturalReader.
-
-After the student downloaded the NaturalReader app, Peddle assisted with account setup, selecting from the available free voice options, and uploading a PDF for text-to-speech functionality. Peddle also highlighted that once books are uploaded, they are saved to the NaturalReader library for future reference. In addition, Peddle demonstrated new features within the app, such as repeating sentences and enabling pauses after each sentence or paragraph to support improved comprehension.
-
-Finally, Peddle introduced the Genio note-taking application and demonstrated its core features, including recording lectures, titling recordings, generating AI-based transcriptions, and organizing notes into collections. A practice recording was completed during the session. Peddle also guided the student through copying a Genio transcript into a Word document and using ChatGPT to generate a structured summary with clear headings and embedded instructor dialogue. Peddle emphasized the importance of maintaining organized class materials in desktop folders and encouraged the student to use Genio regularly on either a desktop or mobile device.
-
-The student expressed appreciation for Peddle's support throughout the session. Peddle offered to help the student at any point that they needed a refresher or have additional questions.`},
-
-  {id:'cn2',tab:'tab-cn',groupId:'grp-cn-session',color:'c4',type:'note',icon:'📝',title:'Genio Session – In Person',when:'After meeting with a student in person to introduce or demo Genio',subject:'Genio Note-Taking Software – Assistive Technology Support Session',script:`Date: [DATE]
-Subject: Genio Note-Taking Software – Assistive Technology Support Session
-
-Peddle met with the student to review assistive technology accommodations, focusing specifically on note-taking support. During the session, Peddle introduced the Genio note-taking software and demonstrated its key features, including how to record lectures, title recordings, use AI Quiz Review, and organize notes into collections. A sample collection was created, and a practice recording was completed to showcase the software's functionality. Peddle also demonstrated how to upload slides as well as how to copy the transcript into a Word doc. Peddle emphasized the importance of communicating with instructor if AI is utilized to summarize the notes.
-
-Additionally, Peddle discussed the importance of microphone sensitivity for optimal audio capture and guided the student through the steps to increase microphone input on their laptop.
-
-The meeting concluded with Peddle inviting the student to reach out with any further questions and encouraging them to schedule a follow-up appointment as needed.`},
-
-  {id:'cn3',tab:'tab-cn',groupId:'grp-cn-session',color:'c4',type:'note',icon:'📝',title:'Genio Session – Virtual',when:'After a virtual meeting with a student to introduce or demo Genio',subject:'Genio Note-Taking Software – Assistive Technology Support Session',script:`Date: [DATE]
-Subject: Genio Note-Taking Software – Assistive Technology Support Session
-
-Peddle met virtually with the student to review assistive technology accommodations, focusing specifically on note-taking support. During the session, Peddle introduced the Genio note-taking software and demonstrated its key features, including how to record lectures, title recordings, use AI Quiz Review, and organize notes into collections. A sample collection was created, and a practice recording was completed to showcase the software's functionality.
-
-Additionally, Peddle discussed the importance of microphone sensitivity for optimal audio capture and guided the student through the steps to increase microphone input on their laptop.
-
-The meeting concluded with Peddle inviting the student to reach out with any further questions and encouraging them to schedule a follow-up appointment as needed.`},
-
-  {id:'cn4',tab:'tab-cn',groupId:'grp-cn-session',color:'c7',type:'note',icon:'📝',title:'NaturalReader Session',when:'After meeting with a student to support NaturalReader',subject:'Assistive Technology – Natural Reader',script:`Date: [DATE]
-Subject: Assistive Technology – Natural Reader
-
-Peddle met with the student to provide support with Natural Reader. During the meeting, Peddle demonstrated how to log in to the student's account to access saved text in the library, select from available free voices, and upload PDF files.
-
-Peddle also reviewed the student's approved accommodation for alternate formats and discussed how to effectively utilize PDFs within Natural Reader to support this accommodation. Additionally, Peddle assisted the student in organizing files and folders on their desktop for easier access and improved workflow.`},
-
-  {id:'cn5',tab:'tab-cn',groupId:'grp-cn-session',color:'c2',type:'note',icon:'📝',title:'Glean Refresher Session',when:'After a student requests a Glean refresher',subject:'Glean',script:`Date: [DATE]
-Subject: Glean
-
-Peddle met with student to discuss Glean. Student stated that they needed a refresher on how to use Glean. Peddle demonstrated some of the features, including recording, making a title for each recording, utilizing AI transcription, and the purpose of collections. A sample collection was created, and a sample recording was made for practice purposes.
-
-Finally, Peddle shared how to copy the transcript, paste/save into a Word document and upload in ChatGPT. ChatGPT was utilized to summarize the transcriptions into headings and bullets with embedded instructor dialogue. Peddle provided an example of a summarized transcription produced by ChatGPT. Peddle also stated that he would email a video that reviews how to utilize ChatGPT and the Glean transcriptions.`},
-
-  {id:'cn6',tab:'tab-cn',groupId:'grp-cn-session',color:'c8',type:'note',icon:'📝',title:'Alt Text Format Session',when:'After meeting with a student to walk through Alt Text Format request process',subject:'Alt Text Format Directions & Natural Reader',script:`Date: [DATE]
-Subject: Alt Text Format Directions & Natural Reader
-
-Peddle met with the student to provide guidance on submitting an Alternate Text Format request. During the meeting, Peddle demonstrated how to access the Alt Text Format Request section within the student's Accommodate portal. The student was shown how to complete the request form, upload proof of purchase, and submit the request.
-
-Peddle also reviewed the next steps of the process, including accessing converted files via SharePoint, downloading documents into a desktop folder, and organizing files for easy access.
-
-In addition, Peddle introduced the student to Natural Reader. Peddle guided the student through account creation, selecting from the available free voice options, and uploading a PDF to enable text-to-speech functionality. Peddle emphasized that uploaded books are stored in the Natural Reader library for ongoing access. Peddle also demonstrated newer features in the app, such as the ability to repeat sentences and insert pauses after sentences or paragraphs to support comprehension.`},
-
-  {id:'cn7',tab:'tab-cn',groupId:'grp-cn-session',color:'c6',type:'note',icon:'📝',title:'Missed Appointment',when:'Student missed their scheduled appointment',subject:'Missed Appointment',script:`Date: [DATE]
-Subject: Missed Appointment
-
-Student missed the scheduled appointment with Peddle, to discuss [...]. Student was sent a "missed meeting letter" generated through Accommodate.`},
-
-  {id:'cn8',tab:'tab-cn',groupId:'grp-cn-admin',color:'c3',type:'note',icon:'📋',title:'Processed Registration',when:'After processing a new student registration in Accommodate',subject:'Processed Accommodate Application/Registration',script:`Date: [DATE]
-Subject: Processed Accommodate Application/Registration
-
-Peddle processed the student registration. Assigned the student to [add specialist last name] and sent the student a letter to schedule a meeting.`},
-
-  // ── AT EMAILS ──────────────────────────────────────
-  {id:'at1',tab:'tab-at',groupId:'grp-at-altfmt',color:'c2',type:'email',icon:'✉️',title:'Digital Book – No PDF Needed',when:'Student bought a digital book but is requesting a PDF alt format',subject:'Alternate Format Request Follow-Up',script:`Hi [Student's Name],
-
-I was reviewing your alternate format request and noticed that you've purchased a digital copy of your textbook. Since you'll be receiving the digital version from the publisher, a separate request for a PDF is not necessary.
-
-If you have any questions about accessing or using the digital copy from the publisher, feel free to reach out – I'm happy to help.
-
-Have a great day!
-Joel`},
-
-  {id:'at2',tab:'tab-at',groupId:'grp-at-altfmt',color:'c4',type:'email',icon:'❓',title:'Confused on Alt Format Next Steps',when:"Student doesn't know what to do next after getting their alt format reminder",subject:'Re: Reminder to Submit Alternative Format Requests',script:`Hi [Student],
-
-The first thing I recommend is watching the video about sending your Letter of Notification, which you'll find on your Accommodate Portal Home Page.
-
-If you've already completed that step, your Accessibility Specialist will review the letters and send them to your instructors. Once that's done, the Alternate Format tab will appear, and you'll be able to submit your alternate format request from there.
-
-Feel free to call me if you have any questions – I'm happy to help!
-
-Best,
-Joel`},
-
-  {id:'at3',tab:'tab-at',groupId:'grp-at-altfmt',color:'c8',type:'email',icon:'☀️',title:'Alt Format – Summer or During Year',when:'Student requesting alt format during summer or the academic year',subject:'Alternate Format Textbook Request',script:`Hi [Student Name],
-
-I hope you're doing well. I was forwarded your request for an alternate format of a textbook for your summer school class. Before we can move forward, you'll need to send your instructor notification and then submit your alternate format request through Accommodate.
-
-I've sent you two separate emails that walk you through this process step by step. I hope this helps, but if you have any questions at all, please feel free to reach out.
-
-Have a great day,
-Joel`},
-
-  {id:'at4',tab:'tab-at',groupId:'grp-at-altfmt',color:'c1',type:'email',icon:'📤',title:'Upload Proof of Purchase',when:'Student has not uploaded proof of purchase in Accommodate',subject:'Reminder Notification to Upload Alternate Format in Accommodate',script:`Hi [First Name],
-
-I hope this email finds you well. I have enclosed directions on how to complete an Alternate Format Request and upload proof of purchase in Accommodate. If you have any questions, please let me know.
-
-Have a great day.
-Joel
-
-Step 1: Log in to Accommodate and click on the tab on the left that says Accommodations.
-
-Step 2: At the bottom of the dropdown you will see Alternative Format. Click on Alternative Format then click on Student Entered (beside Official Text).
-
-Step 3: Click on Upload Document for Alternative Format (Purple Box). Fill out all the items and then click on Submit. Make sure the ISBN# is correct and your proof of purchase includes receipt of payment and what type of alternate format you are requesting (pdf, etc.)
-
-****Follow these steps for each book request.`},
-
-  {id:'at5',tab:'tab-at',groupId:'grp-at-altfmt',color:'c7',type:'email',icon:'❗',title:'Additional Proof of Purchase Needed',when:"Proof of purchase in Accommodate doesn't have enough detail",subject:'Additional Proof of Purchase Needed',script:`Hi [Student Name],
-
-I hope you're doing well.
-
-The proof of purchase in Accommodate does not provide enough information. Could you please upload a document that includes the order number, order date, and other relevant details?
-
-Thank you for your help with this! I'll complete the processing as soon as I receive the updated proof of purchase in Accommodate.
-
-I appreciate your time, and I apologize for any inconvenience.
-
-Best,
-Joel`},
-
-  {id:'at6',tab:'tab-at',groupId:'grp-at-altfmt',color:'c3',type:'email',icon:'✅',title:'Alt Format Complete – Student',when:'Alt format request is complete and shared with student via SharePoint',subject:'Alt Formats Completed and Shared via SharePoint',script:`Hi [Recipient's First Name],
-
-I hope this message finds you well! I'm pleased to let you know that your Alternate Format request (PDF & Word) has been completed. The files have been shared with you via SharePoint.
-
-If you have any questions or need help accessing the materials, please don't hesitate to reach out.
-
-Have an amazing day!
-
-Best regards,
-Joel`},
-
-  {id:'at7',tab:'tab-at',groupId:'grp-at-altfmt',color:'c9',type:'email',icon:'✅',title:'Alt Format Complete – Professor',when:'Alt format PDF updates complete – notifying the requesting professor',subject:'Alternate Formats Complete',script:`Hi [First Name],
-
-I hope this email finds you well. I'm pleased to inform you that the accessibility updates for the [ENTER CLASS] PDFs you requested have been completed. The updated PDFs are now fully accessible. If you have any questions, please do not hesitate to contact me.
-
-Have an amazing day!
-Joel`},
-
-  {id:'at8',tab:'tab-at',groupId:'grp-at-altfmt',color:'c5',type:'email',icon:'🔧',title:'PDF Corrected for Natural Reader',when:'Student needed a PDF fixed so Natural Reader can process it',subject:'PDF Corrected',script:`Hi [Student Name],
-
-I've made the necessary modifications to ensure that Natural Reader can easily process the PDFs. I've attached the corrected PDFs for you.
-
-If you have any additional requests, as always, feel free to reach out.
-
-Wishing you a great day!
-
-Best,
-Joel`},
-
-  {id:'at9',tab:'tab-at',groupId:'grp-at-altfmt',color:'c3',type:'email',icon:'✅',title:'Transcriptions Complete – SharePoint',when:'Transcriptions are finished and shared with the student',subject:'Transcription and Shared via SharePoint',script:`Hi [Recipient's First Name],
-
-I hope this email finds you well. I'm pleased to inform you that the updated transcriptions have been completed. I have shared those items with you through SharePoint. If you have any questions or need assistance accessing the files, please do not hesitate to contact me.
-
-Have an amazing day!
-
-Best regards,
-Joel`},
-
-  {id:'at10',tab:'tab-at',groupId:'grp-at-tech',color:'c3',type:'email',icon:'🎤',title:'Glean Account Reactivated',when:'Reactivating a student Glean account for the semester',subject:'Glean Account Reactivated',script:`Hi [First Name],
-
-I hope this email finds you well. I'm pleased to inform you that your Glean account has been reinstated for the [Fall/Spring Semester]. If you have any questions, please do not hesitate to contact me.
-
-Have the best day!
-Joel`},
-
-  {id:'at11',tab:'tab-at',groupId:'grp-at-tech',color:'c4',type:'email',icon:'🎤',title:'Genio Account Reinstated – No Appt Needed',when:'Student booked appointment just to reinstate Genio – handled without meeting',subject:'Genio Account Reinstated',script:`Hi [Student],
-
-I hope this email finds you well. I had a schedule conflict with the proposed time for the appointment you had requested through Accommodate. Based on the subject of the appointment I went ahead and reinstated your Genio account for the Fall/Spring Semester. You should now have full access.
-
-If you have any questions or need a refresher, please do not hesitate to contact me or schedule an appointment.
-
-Have the best day!
-Joel`},
-
-  {id:'at12',tab:'tab-at',groupId:'grp-at-tech',color:'c2',type:'email',icon:'🎬',title:'Genio & Transcription Video Resources',when:'Sending Genio and transcript video resources to a student after a session',subject:'Genio and Transcripts Video Resources',script:`Hi [Student Name],
-
-I hope you're doing well. It was great meeting you today. I really appreciated your attentiveness and focus during our discussion.
-
-I've attached two videos for you to reference if you have any questions about Genio or Transcripts. Staying organized with your class materials can make studying much easier. Try using your lecture recordings to go over important points, fill in any gaps in your notes, and break big topics into smaller, manageable pieces. Small, steady habits, like reviewing a little each day, can make a big difference!
-
-Let me know if I can help with anything else.
-
-Have the best day,
-Joel`},
-
-  {id:'at13',tab:'tab-at',groupId:'grp-at-appt',color:'c8',type:'email',icon:'📅',title:'How to Schedule in Accommodate',when:'Student asks how to book an appointment with Joel in Accommodate',subject:'How to Make an Appointment in Accommodate',script:`Hi [Student Name],
-
-Glad to help you set up your appointment. So, in Accommodate click on the following:
-
-Click on Appointments
-Click on Request New Appointment
-Click (type) choose Assistive Technology (30 min) – click done
-Leave date range as is and time range as is.
-Click Joel Peddle
-Click Check Availability
-Dates will populate. Choose which day works best for you and I will be notified.
-
-Hope this helps. Feel free to reach out if you have any further questions.
-
-Have the best day!
-Joel`},
-
-  {id:'at14',tab:'tab-at',groupId:'grp-at-appt',color:'c5',type:'email',icon:'🔁',title:'Reschedule – Conflict',when:'Student set a virtual appointment but there is a conflict',subject:'Request to Reschedule Meeting',script:`Hi [Recipient's Name],
-
-I wanted to let you know that I have a scheduling conflict with our upcoming meeting currently set for [original date and time]. I'm available [alternative date and time options], and I'd be happy to adjust the meeting to a time that works best for you.
-
-Please let me know your availability, and I'll go ahead and update the meeting in Accommodate once we confirm.
-
-Thanks for your understanding!
-
-Best regards,
-Joel`},
-
-  {id:'at15',tab:'tab-at',groupId:'grp-at-appt',color:'c7',type:'email',icon:'🔔',title:'Virtual Appointment Reminder – Teams',when:'Sending a reminder before a scheduled virtual Teams meeting',subject:'Reminder Virtual Appointment via Teams Link',script:`Hi [First Name],
-
-I hope this email finds you well. This is a friendly reminder that you have a scheduled virtual meeting for a quick tutorial on Glean. You should have received the Teams link in your email inbox.
-
-If you have any questions, feel free to reach out. Otherwise, I'll see you today at [Time] via Teams.
-
-Have a great day!
-Joel`},
-
-  {id:'at16',tab:'tab-at',groupId:'grp-at-appt',color:'c6',type:'email',icon:'🏠',title:'Wrong Appointment Type – Housing',when:"Student scheduled AT appointment but it's actually a housing accommodation request",subject:'Appointment Type Clarification',script:`Hi [Student Name],
-
-I hope you're doing well! I noticed that you scheduled an appointment with me today at [date, time] to discuss a housing accommodation. I wanted to clarify whether you're seeking assistance with Assistive Technology or Housing Accommodations.
-
-If your request is related to housing, I recommend scheduling an appointment with an Accessibility Specialist instead. You can begin the process by visiting the Office of Accessibility Resources and Services, clicking on "New to OARS," and completing the necessary documentation.
-
-If you have any questions about registering, feel free to reach out to Destiny Johnson at (336) 841-9026. She'll be happy to assist you and answer any questions.
-
-Let me know if you have any questions.
-
-Have the Best day,
-Joel`},
-
-  // ── TESTING EMAILS ─────────────────────────────────
-  {id:'te1',tab:'tab-te',groupId:'grp-te-sched',color:'c1',type:'email',icon:'📅',title:'3-Day Advance Notice Reminder',when:'Student trying to book without 3 business days notice',subject:'Testing Room Booking',script:`Hi [Student Name],
-
-I hope this message finds you well! I wanted to kindly remind you that all exams and quizzes taken in the OARS Testing Center must be scheduled at least three business days in advance. This helps ensure we can provide the necessary accommodations and support for your assessment.
-
-If you have any questions, feel free to contact Meredith Cummings, our Testing Coordinator, about the scheduling process.
-
-Thank you for your understanding and cooperation!
-
-Kind regards,
-Joel`},
-
-  {id:'te2',tab:'tab-te',groupId:'grp-te-sched',color:'c5',type:'email',icon:'🧪',title:'Past Window – Two Options',when:'Student missed the 3-day window – give them two alternatives',subject:'Test Scheduling – Options',script:`Hi,
-
-To book a test room with OARS, you will need to schedule a test room 3 days in advance. That is more than likely the reason why you are unable to schedule. So, you have two options:
-
-1. Your instructor will need to proctor your exam and provide you with extra time and a distraction reduced environment (if they are able to).
-
-2. Work with your instructor to coordinate a different day and time to take your test.
-
-I am attaching the testing timeline to this email to show you when is the proper time to submit your test. Some students submit their finals and mid-terms ahead of time, so please get those in for sure! I also sent you step by step instructions in a separate email on how to schedule your exam in Accommodate.
-
-If for ANY reason you are having issues with scheduling, please email Meredith, the OARS testing coordinator directly. Her contact information is mcummin1@highpoint.edu
-
-If you have any questions, please let me know.
-
-Thank you,
-Joel`},
-
-  {id:'te3',tab:'tab-te',groupId:'grp-te-sched',color:'c4',type:'email',icon:'📝',title:'How to Schedule via Accommodate',when:'Student emailed asking how to schedule their test with OARS',subject:'Scheduling Your Test Through Accommodate',script:`Hello,
-
-To properly request to schedule your test with OARS you need to submit it via Accommodate. I have sent you instructions on how to do that. Please get this submission to us by this Friday at 5pm in order to test in our testing center. Please note that if this test is on a different date than your exam, your instructor must approve it. You may want to coordinate to make sure that this is okay.
-
-When you submit your request, just be sure to select the day and leave the time frame. Then select check availability at the bottom. On the right side of the screen there will be different time slots and rooms to select. I am adding Meredith Cummings, the OARS Testing Coordinator, to advise if you have any trouble with scheduling. If you have any questions, please let Meredith know.
-
-Thank you,
-Joel`},
-
-  {id:'te4',tab:'tab-te',groupId:'grp-te-sched',color:'c7',type:'email',icon:'🚫',title:'Finals/Midterms – Too Late',when:'Student missed the finals/midterm exam submission deadline',subject:'Re: Exam Scheduling Request',script:`Dear [Student's Name],
-
-Thank you for reaching out. Unfortunately, we are unable to schedule your exam in OARS due to the timeliness of your request. The deadline to submit exam requests was Wednesday, April 17, 2025, at 5:00 PM.
-
-We understand that this may be disappointing, and we encourage you to reach out to your instructor to discuss alternative arrangements. Please feel free to contact our office if you have any questions or if we can offer further support.
-
-Best regards,
-Joel`},
-
-  {id:'te5',tab:'tab-te',groupId:'grp-te-student',color:'c3',type:'email',icon:'🏛️',title:'4th Floor – Finals/Midterms',when:'Student is scheduled for a mid-term or final on the 4th floor ONLY',subject:'[FINAL/MIDTERM EXAM] REPORT TO 4TH FLOOR',script:`Dear [Student's Name],
-
-This is a reminder that you are scheduled to take a test in the OARS Testing Center tomorrow, [DATE].
-
-Please report to the 4th floor of Smith Library and check in with Destiny Johnson at the end of the hall. She will direct you to your testing room.
-
-Wishing you a restful evening and the best of luck on your exam!
-
-Best,
-Joel`},
-
-  {id:'te6',tab:'tab-te',groupId:'grp-te-faculty',color:'c6',type:'email',icon:'👨‍🏫',title:'Faculty – Final Exam Reminder',when:'Faculty has NOT uploaded exam material – final reminder before cancellation',subject:'Exam Information Needed – LAST REMINDER – OARS TESTING CENTER',script:`This is your FINAL REMINDER to complete the necessary Exam Information Form. One or more of your students have requested to take their exam in the OARS Testing Center, but OARS requires additional information from you in order to proctor the exam.
-
-If the steps outlined below are not completed within 24 business hours prior to the scheduled exam, the OARS Testing Center will cancel the exam, the student will be instructed to return to class, and you will be expected to provide all of the testing accommodations for the student(s). If you have already completed the steps below, please contact Meredith Cummings, the OARS Testing Coordinator, to confirm receipt as there may be technical issues with the system that need to be addressed.
-
-HOW TO COMPLETE THE EXAM INFORMATION FORM IN ACCOMMODATE
-This step must be completed no later than 24 business hours prior to the student's scheduled exam.
-
-1. Log into Accommodate: https://highpoint-accommodate.symplicity.com/faculty
-2. Select Courses on the left-hand side of the screen.
-3. Select the appropriate course.
-4. Select Exam on the upper right-hand corner of the section.
-5. Select the purple box with the text Add New Exam.
-
-This is a time-sensitive matter, and it is imperative that you take immediate action to ensure your students receive their approved accommodations. If you have any questions or require assistance, please do not hesitate to contact Meredith Cummings, OARS Testing Coordinator. Thank you for your prompt attention to this matter!
-
-Thank you,
-Joel`},
-
-  // ── GENERAL EMAILS ─────────────────────────────────
-  {id:'gen1',tab:'tab-gen',groupId:'grp-gen-housing',color:'c8',type:'email',icon:'🏠',title:'Housing Declined – Student Response',when:'Student declined ADA housing offer',subject:'ADA Housing Offer – OARS Follow-Up',script:`Hello,
-
-I received the email below from housing regarding your decision to decline your ADA housing offer for the upcoming 2025-2026 academic year. Please note that if you would like to use your ADA housing accommodations for the 2026-2027 academic year, you must contact OARS by Feb 13, 2026, to be placed on the ADA housing list.
-
-If you do not contact OARS by this date, then you will be placed in the traditional housing portal for housing selection. If you choose to implement your housing accommodations after the February 14th, 2026 deadline, you'll be prioritized for housing that meets your disability-related needs, but the University cannot guarantee an ADA placement.
-
-Should you have any questions, please let me or [specialist first name] know.
-
-Thanks,
-Joel`},
-
-  {id:'gen2',tab:'tab-gen',groupId:'grp-gen-housing',color:'c2',type:'email',icon:'🏠',title:'Housing – No Response / Delayed',when:'Student did not respond to ADA housing offer and it was marked declined',subject:'ADA Housing Offer – No Response on File',script:`Hi [Student Name],
-
-I received the email below from housing regarding the ADA housing offer for the 2025-2026 school year. Because of no response, housing has noted that this was a declined offer.
-
-Please note that if you would like to use your ADA housing accommodations for the 2025-2026 school year, you must contact OARS directly via email. If you choose to implement your ADA housing accommodation during the 2025-2026 school year, you'll be placed on a prioritized waitlist for housing that meets your disability-related needs.
-
-Should you have any questions, please let me or [specialist first name] know.
-
-Joel`},
-
-  {id:'gen3',tab:'tab-gen',groupId:'grp-gen-housing',color:'c4',type:'email',icon:'🏠',title:'Housing – Suitemate Request Clarification',when:'Student requesting a specific number of suitemates through OARS',subject:'Housing Accommodation – Suitemate Clarification',script:`Hello,
-
-I want to clarify that OARS does not have control over the number of suitemates assigned to you or who can be assigned to live with you. Our role is to determine if a student qualifies for ADA housing accommodations, such as the option to have or not have a roommate or suitemate, and then forward that approval to the Housing Office. The Housing Office is responsible for assigning housing locations and determining the number of suitemates based on availability.
-
-For additional assistance, you may wish to contact your community director or the Housing Department directly.
-
-If you'd like to move forward with requesting housing accommodation, with the understanding that we cannot guarantee a specific roommate or suitemate arrangement, please let me know, and I'll be happy to provide you with the necessary details.
-
-Thank you,
-Joel`},
-
-  {id:'gen4',tab:'tab-gen',groupId:'grp-gen-housing',color:'c3',type:'email',icon:'🏠',title:'Incoming Freshman – Housing Accommodations',when:'Incoming freshman requesting housing accommodations (with deadline)',subject:'Housing Accommodation Request – Process Overview',script:`Hello,
-
-Thanks for reaching out and submitting your housing accommodations request! I will be more than happy to guide you through the process. Please refer to the steps below to get started:
-
-Register for OARS: please register by using this link: https://highpoint-accommodate.symplicity.com/public_accommodation/
-
-Documentation: I've attached the housing forms, which must be completed by a licensed professional who is more familiar with your needs. Any additional documentation can be uploaded at the time of registering or emailed to OARS (Oars@highpoint.edu).
-
-Intake Meeting: After completing registration and submitting your documentation, you will need to attend an intake meeting with an Accessibility Specialist. You will be emailed with instructions on how to schedule a meeting to your HPU email, so please be sure to check for this! This meeting, which can be held virtually or in person, will provide an opportunity for you and your assigned specialist to discuss your request.
-
-Our process for any request takes 3-5 business days. This process cannot be expedited as it will be reviewed in the order in which it was received. If approved, you will be assigned housing based on your needs in available ADA-compliant housing. Please note that our office does not determine specific housing placements.
-
-IMPORTANT: If your accommodation is approved before the deadline (February 15th for upperclassmen or April 15th for incoming students), you'll have equal access to accessible housing, though it doesn't guarantee a specific residence hall or room. After the deadline, you'll be prioritized for housing that meets your disability-related needs.
-
-If you have any questions, feel free to reach out.
-
-Thank you!
-Joel`},
-
-  {id:'gen5',tab:'tab-gen',groupId:'grp-gen-esa',color:'c5',type:'email',icon:'🐾',title:'ESA Request – Process Overview',when:'Student inquiring about requesting an ESA through OARS',subject:'ESA Accommodation Request – Process Overview',script:`Hello,
-
-Thanks for reaching out. I'm happy to explain the process for requesting accommodation with our office for your ESA.
-
-Register for OARS: please register by using this link: https://highpoint-accommodate.symplicity.com/public_accommodation/
-
-Intake Meeting: After completing registration, you will need to attend an intake meeting with an Accessibility Specialist. You will be emailed with instructions on how to schedule a meeting to your HPU email, so please be sure to check for this! This meeting, which can be held virtually or in person, will provide an opportunity for you and your assigned specialist to discuss your request. During your meeting, you will receive the OARS ESA form.
-
-Documentation (Can be uploaded to your Accommodate account or sent to OARS@highpoint.edu):
-- The ESA form must be completed by a licensed professional who is familiar with your needs. This provider must not be related to you.
-- Up to date vaccine records or wellness exam (including a rabies vaccine) – If your ESA is too young for this vaccine, an official ESA approval will not be possible at this time.
-- A photo of your ESA.
-
-Our process for any request takes 3-5 business days after all documentation is received. This process cannot be expedited as it will be reviewed in the order in which it was received.
-
-Please note that your ESA is not permitted to be on campus unless it has been approved by our office, and you have received an official letter from us. If it is found that your ESA is on campus, it will be considered an unauthorized animal, and you will be subject to ESA violation sanctions.
-
-Thank you,
-Joel`},
-
-  {id:'gen6',tab:'tab-gen',groupId:'grp-gen-esa',color:'ca',type:'email',icon:'💉',title:'ESA – Vaccination Update Needed',when:'ESA rabies vaccination has expired and needs to be updated',subject:'ESA Documentation Reminder – Vaccination Update Needed',script:`Hi!
-
-This is just a reminder email regarding the documentation for your ESA. The rabies vaccination does expire on ___, so we will need the up-to-date vaccinations. If your ESA is no longer on campus, please respond to this email letting me know so I can make a note.
-
-Please know that you need this if your ESA is on campus. If we do not receive the documentation, your ESA will no longer be permitted on campus until the information has been updated.
-
-If you have any questions, please let me know.
-
-Thank you,
-Joel`},
-
-  {id:'gen7',tab:'tab-gen',groupId:'grp-gen-academic',color:'c4',type:'email',icon:'📚',title:'Academic Accommodations – No Docs',when:'Student requesting academic accommodations but has not submitted documentation',subject:'Academic Accommodation Request – Next Steps',script:`Hello,
-
-I hope you're doing well! I'd be happy to explain our process in requesting Academic Accommodations.
-
-Please refer to the steps below:
-
-Register for OARS: please register by using this link: https://highpoint-accommodate.symplicity.com/public_accommodation/
-
-Documentation: When you register, upload your documentation. Our office requires a 504 plan, IEP, or Neuropsychological evaluation. If you do not have either of these documents, OARS typically asks for detailed information about how your condition affects your daily activities, especially your schoolwork and access to campus. This documentation should come from a licensed professional, written on official letterhead, and include their signature and the date. If you forget to upload your documentation to the portal, you can email it over to OARS (oars@highpoint.edu), and it will be uploaded to your portal.
-
-Intake Meeting: After completing registration and submitting your documentation, you will need to attend an intake meeting with an Accessibility Specialist. You will be emailed instructions on how to schedule a meeting to your HPU email, so please be sure to check for this!
-
-Our process for any request takes 3-5 business days. This process cannot be expedited as it will be reviewed in the order in which it was received.
-
-If you have any questions, please let me know.
-
-Thank you,
-Joel`},
-
-  {id:'gen8',tab:'tab-gen',groupId:'grp-gen-academic',color:'c1',type:'email',icon:'🤒',title:'Student Sick – OARS Can\'t Excuse',when:'Student is sick and asking OARS what to do about absences',subject:'Question Regarding Absence from Class',script:`Hi [Student Name],
-
-I am sorry you are not feeling well. You will need to be the one to inform your instructors of your absences and coordinate missed work or test. Our office only handles disability related concerns and cannot excuse students' absences or provide temporary remote access.
-
-I apologize for the inconvenience. I hope you feel better soon.
-
-Best,
-Joel`},
-
-  {id:'gen9',tab:'tab-gen',groupId:'grp-gen-academic',color:'c3',type:'email',icon:'📧',title:'Student Notifying Instructors – Directions',when:'Student needs to know how to notify instructors of accommodations',subject:'Sending Your Accommodation Notification to Instructors',script:`Hello,
-
-At the start of each semester, students are encouraged to inform their instructors if they wish to use their accommodations. I've sent you instructions in a separate email on how to do this. Once you've submitted your request, you'll receive a confirmation email once your specialist, [specialist name], has successfully submitted it. After that, it will be your responsibility to communicate with your instructors to ensure they've signed the letter confirming your accommodations. If you encounter any issues, please let me or your specialist know. [Specialist name] has been copied on this email as well.
-
-Thank you,
-Joel`},
-
-  {id:'gen10',tab:'tab-gen',groupId:'grp-gen-parents',color:'c6',type:'email',icon:'👨‍👩‍👧',title:'Parent Email – Self-Advocacy Policy',when:'Parent contacts OARS directly about their student',subject:'OARS Communication Policy – Parent Inquiry',script:`Dear [Parent Name],
-
-Thank you for contacting the Office of Accessibility Resources and Services (OARS). We understand that these matters are very important to you, and we appreciate the support you are providing as your student navigates their transition to university life.
-
-In an effort to more closely align with the federal laws that govern our office (including the Americans with Disabilities Act and Section 504 of the Rehabilitation Act of 1973), we have made changes to our policies regarding communication with parents. While we value and respect your involvement, OARS works directly with students to support the development of their self-advocacy skills, which are essential for success both in college and beyond. Parental involvement should primarily take the form of advising and encouraging the student from the sidelines.
-
-Please encourage [student name] to reach out if they have any questions. They are welcome to reach out to OARS directly by phone at 336-841-9026 or by emailing OARS at oars@highpoint.edu or me at tpeddle@highpoint.edu.
-
-Thank you for supporting your student's efforts in gaining critical life skills during this time of transition.
-
-Warm regards,
-Joel`},
-
-  {id:'gen11',tab:'tab-gen',groupId:'grp-gen-misc',color:'c8',type:'email',icon:'🚶',title:'Walk-In Hours Info',when:'Student or family asking about walk-in availability',subject:'Walk-In Hours – OARS',script:`Hello,
-
-I would like to offer to stop by during the walk-in hours to help answer any general questions you may have. During that meeting a specialist will be able to discuss the process and clarify the documentation that you need. Intake meetings cannot be done during these times. Please feel free to stop by during the hours provided below:
-
-Walk-in Hours: Every Monday, Tuesday, Thursday and Friday from 9am–12pm & 1pm–4pm.
-
-Thank you,
-Joel`},
-
-  {id:'gen12',tab:'tab-gen',groupId:'grp-gen-misc',color:'c2',type:'email',icon:'🚌',title:'Accessible Transportation – Duty Driver',when:'Student approved for accessible transportation asking how it works',subject:'Accessible Transportation – Duty Driver Information',script:`Hello,
-
-Students approved for Accessible Transportation accommodation are encouraged to connect with the HPU Transportation department. Students may schedule transportation in advance or contact the HPU Duty Driver spontaneously for transport. When contacting the Duty Driver, be prepared with your contact information, housing assignment, and class schedule.
-
-Chris Rudisill | crudisil@highpoint.edu | 336-870-6607
-Hours: Monday – Friday 7:00 AM to 8:00 PM
-Saturday – Sunday 10:00 AM to 6:00 PM
-
-Thank you,
-Joel`},
-];
 
 // ── INIT DATA ─────────────────────────────────────────
 // Inject seed data only on first run
@@ -779,7 +321,7 @@ function initData() {
 let TABS=[], GROUPS=[], SCRIPTS=[];
 initData();
 
-let activeTab='tab-cn';
+let activeTab='tab-1';
 let selectedColor='c1';
 let pendingImport=null;
 
@@ -817,7 +359,7 @@ function exportData(){
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url; a.download=`joel-scripts-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  a.href=url; a.download=`oars-scripts-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
   URL.revokeObjectURL(url); dismissBanner();
 }
 
@@ -919,7 +461,7 @@ function renderPanel(s){
   const fieldsHtml=isEmail
     ?`<div class="fields"><div class="field-row"><label>Subject</label><input type="text" id="subj-${s.id}" value="${esc(s.subject||'')}"></div></div>`
     :`<div class="fields"><div class="field-row"><label>Date</label><input type="text" id="date-${s.id}" placeholder="e.g. July 7, 2025"></div><div class="field-row"><label>Subject</label><span class="field-val">${esc(s.subject||'')}</span></div></div>`;
-  return `<div class="script-panel" id="panel-${s.id}"><div class="title-row"><div class="script-title" id="title-display-${s.id}">${s.icon||'📄'} ${esc(title)}</div><button class="rename-btn" onclick="startRename('${s.id}')">✏ Rename</button></div><div class="script-when">Use when: ${esc(s.when)}</div>${fieldsHtml}<div class="script-box"><button class="delete-btn" onclick="deleteScript('${s.id}')">🗑 Delete</button><textarea class="script-text" id="txt-${s.id}" rows="${rows}" oninput="autoSave('${s.id}')">${esc(scriptText)}</textarea><button class="copy-btn" id="cbtn-${s.id}" onclick="copyIt('${s.id}')">Copy</button></div><div class="save-indicator" id="saved-${s.id}"></div></div>`;
+  return `<div class="script-panel" id="panel-${s.id}"><div class="title-row"><div class="script-title" id="title-display-${s.id}">${s.icon||'📄'} ${esc(title)}</div><button class="rename-btn" onclick="openEditModal('${s.id}')">✏ Edit</button></div><div class="script-when">Use when: ${esc(s.when)}</div>${fieldsHtml}<div class="script-box"><button class="delete-btn" onclick="deleteScript('${s.id}')">🗑 Delete</button><textarea class="script-text" id="txt-${s.id}" rows="${rows}" oninput="autoSave('${s.id}')">${esc(scriptText)}</textarea><button class="copy-btn" id="cbtn-${s.id}" onclick="copyIt('${s.id}')">Copy</button></div><div class="save-indicator" id="saved-${s.id}"></div></div>`;
 }
 
 // ── GROUPS ────────────────────────────────────────────
@@ -966,16 +508,91 @@ function deleteScript(id){
   SCRIPTS=SCRIPTS.filter(s=>s.id!==id);sdel('edit_'+id);sdel('title_'+id);persist();buildAll();showTab(activeTab);
 }
 
-// ── RENAME ────────────────────────────────────────────
-function startRename(id){
-  const s=SCRIPTS.find(x=>x.id===id);const row=document.querySelector('#panel-'+id+' .title-row');const display=document.getElementById('title-display-'+id);const btn=row.querySelector('.rename-btn');
-  const input=document.createElement('input');input.className='title-input';input.value=sget('title_'+id)||s.title;input.id='title-input-'+id;display.replaceWith(input);btn.textContent='✓ Save';btn.onclick=()=>saveRename(id);
-  input.focus();input.select();input.addEventListener('keydown',e=>{if(e.key==='Enter')saveRename(id);if(e.key==='Escape'){buildAll();showTab(activeTab);}});
+// ── EDIT SCRIPT MODAL ─────────────────────────────────
+let editingScriptId=null;
+let editSelectedColor='c1';
+
+function buildEditColorGrid(){
+  const grid=document.getElementById('editColorGrid');
+  if(!grid||grid.children.length>0)return; // only build once
+  COLORS.forEach(c=>{
+    const sw=document.createElement('div');sw.className='edit-color-swatch';sw.style.background=c.hex;sw.setAttribute('data-cls',c.cls);
+    sw.onclick=()=>{editSelectedColor=c.cls;document.querySelectorAll('.edit-color-swatch').forEach(s=>s.classList.remove('selected'));sw.classList.add('selected');};
+    grid.appendChild(sw);
+  });
 }
-function saveRename(id){
-  const input=document.getElementById('title-input-'+id);if(!input)return;const v=input.value.trim();if(!v)return;
-  sset('title_'+id,v);const ci=SCRIPTS.findIndex(x=>x.id===id);if(ci>=0){SCRIPTS[ci].title=v;persist();}
-  buildAll();showTab(activeTab);setTimeout(()=>selectScript(id,activeTab),40);
+
+function refreshEditGroupSelect(preselect){
+  const tabId=document.getElementById('e-tab')?.value;
+  const sel=document.getElementById('e-group');if(!sel||!tabId)return;
+  const tabGroups=GROUPS.filter(g=>g.tabId===tabId);
+  sel.innerHTML=tabGroups.length
+    ?tabGroups.map(g=>`<option value="${g.id}">${esc(g.label)}</option>`).join('')+'<option value="">— Ungrouped —</option>'
+    :'<option value="">— No groups in this tab —</option>';
+  if(preselect!==undefined)sel.value=preselect;
+}
+
+function openEditModal(id){
+  const s=SCRIPTS.find(x=>x.id===id);if(!s)return;
+  editingScriptId=id;
+  buildEditColorGrid();
+
+  // Populate tab select
+  const tabSel=document.getElementById('e-tab');
+  tabSel.innerHTML=TABS.map(t=>`<option value="${t.id}">${esc(t.label)}</option>`).join('');
+  tabSel.value=s.tab;
+  refreshEditGroupSelect(s.groupId||'');
+
+  // Fill fields
+  document.getElementById('e-title').value=sget('title_'+id)||s.title;
+  document.getElementById('e-type').value=s.type||'note';
+  document.getElementById('e-subject').value=s.subject||'';
+  document.getElementById('e-when').value=s.when||'';
+
+  // Set color
+  editSelectedColor=s.color||'c1';
+  document.querySelectorAll('.edit-color-swatch').forEach(sw=>{
+    sw.classList.toggle('selected', sw.getAttribute('data-cls')===editSelectedColor);
+  });
+
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal(){document.getElementById('editModal').classList.remove('open');editingScriptId=null;}
+
+function saveEdit(){
+  const id=editingScriptId;if(!id)return;
+  const ci=SCRIPTS.findIndex(x=>x.id===id);if(ci<0)return;
+
+  const title=document.getElementById('e-title').value.trim();
+  const tab=document.getElementById('e-tab').value;
+  const groupId=document.getElementById('e-group').value||null;
+  const type=document.getElementById('e-type').value;
+  const subject=document.getElementById('e-subject').value.trim();
+  const when=document.getElementById('e-when').value.trim();
+  if(!title){alert('Title is required.');return;}
+
+  // Check if tab changed — if so, script moves to new tab's view
+  const oldTab=SCRIPTS[ci].tab;
+
+  SCRIPTS[ci].title=title;
+  SCRIPTS[ci].tab=tab;
+  SCRIPTS[ci].groupId=groupId;
+  SCRIPTS[ci].type=type;
+  SCRIPTS[ci].icon=type==='note'?'📝':'✉️';
+  SCRIPTS[ci].subject=subject||title;
+  SCRIPTS[ci].when=when||SCRIPTS[ci].when;
+  SCRIPTS[ci].color=editSelectedColor;
+
+  // Also update the title override key
+  sset('title_'+id, title);
+
+  persist();
+  closeEditModal();
+  buildAll();
+  // Navigate to wherever the script now lives
+  showTab(tab);
+  setTimeout(()=>selectScript(id,tab),50);
 }
 
 // ── AUTO-SAVE / COPY ──────────────────────────────────
@@ -1041,9 +658,9 @@ function doSearch(q){
 function goToScript(id,tab){clearSearch();showTab(tab);setTimeout(()=>selectScript(id,tab),40);}
 function clearSearch(){document.getElementById('searchBox').value='';document.getElementById('clearBtn').style.display='none';document.getElementById('searchBanner').classList.remove('on');document.getElementById('searchPage').classList.remove('active');showTab(activeTab);}
 
-['modalOverlay','importModal','tabManagerModal'].forEach(id=>{document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id)){if(id==='modalOverlay')closeModal();else if(id==='importModal')closeImportModal();else closeTabManager();}});});
+['modalOverlay','importModal','editModal','tabManagerModal'].forEach(id=>{document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id)){if(id==='modalOverlay')closeModal();else if(id==='importModal')closeImportModal();else if(id==='editModal')closeEditModal();else closeTabManager();}});});
 
-buildAll();showTab(activeTab);checkBanner();
+buildAll();showTab(activeTab);checkBanner();buildEditColorGrid();
 </script>
 </body>
 </html>
